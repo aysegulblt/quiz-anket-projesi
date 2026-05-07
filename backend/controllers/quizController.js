@@ -62,9 +62,44 @@ const getQuizById = async (req, res) => {
     });
   }
 };
+const updateQuiz = async (req, res) => {
+  try {
+    const { title, description, questions } = req.body;
+
+    const quiz = await Quiz.findById(req.params.id);
+
+    if (!quiz) {
+      return res.status(404).json({
+        message: "Quiz bulunamadı.",
+      });
+    }
+
+    if (quiz.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Bu quiz üzerinde işlem yapma yetkiniz yok.",
+      });
+    }
+
+    quiz.title = title || quiz.title;
+    quiz.description = description || quiz.description;
+    quiz.questions = questions || quiz.questions;
+
+    const updatedQuiz = await quiz.save();
+
+    res.status(200).json({
+      message: "Quiz başarıyla güncellendi.",
+      quiz: updatedQuiz,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Quiz güncellenirken hata oluştu.",
+    });
+  }
+};
 
 module.exports = {
   createQuiz,
   getAllQuizzes,
   getQuizById,
+  updateQuiz,
 };
