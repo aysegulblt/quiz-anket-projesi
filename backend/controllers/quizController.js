@@ -97,9 +97,38 @@ const updateQuiz = async (req, res) => {
   }
 };
 
+const deleteQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+
+    if (!quiz) {
+      return res.status(404).json({
+        message: "Quiz bulunamadı.",
+      });
+    }
+
+    if (quiz.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Bu quiz üzerinde işlem yapma yetkiniz yok.",
+      });
+    }
+
+    await quiz.deleteOne();
+
+    res.status(200).json({
+      message: "Quiz başarıyla silindi.",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Quiz silinirken hata oluştu.",
+    });
+  }
+};
+
 module.exports = {
   createQuiz,
   getAllQuizzes,
   getQuizById,
   updateQuiz,
+  deleteQuiz,
 };
