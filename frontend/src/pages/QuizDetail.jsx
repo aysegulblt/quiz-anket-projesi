@@ -4,16 +4,12 @@ import axios from "axios";
 
 function QuizDetail() {
   const { id } = useParams();
-
   const [quiz, setQuiz] = useState(null);
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/api/quizzes/${id}`
-        );
-
+        const response = await axios.get(`http://localhost:5000/api/quizzes/${id}`);
         setQuiz(response.data);
       } catch (error) {
         console.log("Quiz detayı alınamadı:", error);
@@ -30,10 +26,7 @@ function QuizDetail() {
   return (
     <div>
       <h1 className="page-title">{quiz.title}</h1>
-
-      <p className="quiz-description">
-        {quiz.description}
-      </p>
+      <p className="quiz-description">{quiz.description}</p>
 
       <div className="question-list">
         {quiz.questions.map((question, index) => (
