@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import QuizList from "./pages/QuizList";
 import CreateQuiz from "./pages/CreateQuiz";
 import QuizDetail from "./pages/QuizDetail";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "./App.css";
 
 function App() {
@@ -18,7 +19,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/quizzes" element={<QuizList />} />
-          <Route path="/create-quiz" element={<CreateQuiz />} />
+          <Route
+                path="/create-quiz"
+                element={
+                <ProtectedRoute>
+                  <CreateQuiz />
+                </ProtectedRoute>
+        }/>
           <Route path="/quizzes/:id" element={<QuizDetail />} />
         </Routes>
       </main>

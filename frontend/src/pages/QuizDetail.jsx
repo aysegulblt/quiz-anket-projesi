@@ -4,7 +4,10 @@ import axios from "axios";
 
 function QuizDetail() {
   const { id } = useParams();
+
   const [quiz, setQuiz] = useState(null);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [showResult, setShowResult] = useState(false);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -19,14 +22,55 @@ function QuizDetail() {
     fetchQuiz();
   }, [id]);
 
+  const handleSelectAnswer = (questionIndex, option) => {
+    if (showResult) return;
+
+    setSelectedAnswers({
+      ...selectedAnswers,
+      [questionIndex]: option,
+    });
+  };
+
+  const calculateScore = () => {
+    let score = 0;
+
+    quiz.questions.forEach((question, index) => {
+      if (selectedAnswers[index] === question.correctAnswer) {
+        score++;
+      }
+    });
+
+    return score;
+  };
+
+  const handleSubmit = () => {
+    if (Object.keys(selectedAnswers).length !== quiz.questions.length) {
+      alert("Lütfen tüm soruları cevaplayınız.");
+      return;
+    }
+
+    setShowResult(true);
+  };
+
   if (!quiz) {
     return <p>Yükleniyor...</p>;
   }
+
+  const score = showResult ? calculateScore() : 0;
 
   return (
     <div>
       <h1 className="page-title">{quiz.title}</h1>
       <p className="quiz-description">{quiz.description}</p>
+
+      {showResult && (
+        <div className="result-box">
+          <h2>Sonuç</h2>
+          <p>
+            {quiz.questions.length} sorudan {score} doğru yaptınız.
+          </p>
+        </div>
+      )}
 
       <div className="question-list">
         {quiz.questions.map((question, index) => (
@@ -36,15 +80,40 @@ function QuizDetail() {
             </h3>
 
             <div className="option-list">
-              {question.options.map((option, i) => (
-                <button key={i} className="option-button">
-                  {option}
-                </button>
-              ))}
+              {question.options.map((option, i) => {
+                const isSelected = selectedAnswers[index] === option;
+                const isCorrect = question.correctAnswer === option;
+
+                let optionClass = "option-button";
+
+                if (showResult && isCorrect) {
+                  optionClass += " correct-option";
+                } else if (showResult && isSelected && !isCorrect) {
+                  optionClass += " wrong-option";
+                } else if (isSelected) {
+                  optionClass += " selected-option";
+                }
+
+                return (
+                  <button
+                    key={i}
+                    className={optionClass}
+                    onClick={() => handleSelectAnswer(index, option)}
+                  >
+                    {option}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}
       </div>
+
+      {!showResult && (
+        <button className="submit-quiz-button" onClick={handleSubmit}>
+          Quiz'i Bitir
+        </button>
+      )}
     </div>
   );
 }
