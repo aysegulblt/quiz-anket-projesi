@@ -12,6 +12,7 @@ function Navbar() {
         <Link to="/">Ana Sayfa</Link>
         <Link to="/quizzes">Quizler</Link>
         {user && <Link to="/create-quiz">Quiz Oluştur</Link>}
+        {user && <Link to="/my-quizzes">Benim Quizlerim</Link>}
 
         {!user ? (
           <>

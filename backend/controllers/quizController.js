@@ -124,6 +124,19 @@ const deleteQuiz = async (req, res) => {
     });
   }
 };
+const getMyQuizzes = async (req, res) => {
+  try {
+    const quizzes = await Quiz.find({ createdBy: req.user._id }).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json(quizzes);
+  } catch (error) {
+    res.status(500).json({
+      message: "Kullanıcı quizleri getirilirken hata oluştu.",
+    });
+  }
+};
 
 module.exports = {
   createQuiz,
@@ -131,4 +144,5 @@ module.exports = {
   getQuizById,
   updateQuiz,
   deleteQuiz,
+  getMyQuizzes,
 };

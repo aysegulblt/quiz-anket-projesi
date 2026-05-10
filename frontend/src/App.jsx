@@ -7,6 +7,7 @@ import QuizList from "./pages/QuizList";
 import CreateQuiz from "./pages/CreateQuiz";
 import QuizDetail from "./pages/QuizDetail";
 import ProtectedRoute from "./components/ProtectedRoute";
+import MyQuizzes from "./pages/MyQuizzes";
 import "./App.css";
 
 function App() {
@@ -26,6 +27,13 @@ function App() {
                   <CreateQuiz />
                 </ProtectedRoute>
         }/>
+        <Route
+              path="/my-quizzes"
+              element={
+                <ProtectedRoute>
+                  <MyQuizzes />
+                </ProtectedRoute>
+          }/>
           <Route path="/quizzes/:id" element={<QuizDetail />} />
         </Routes>
       </main>
