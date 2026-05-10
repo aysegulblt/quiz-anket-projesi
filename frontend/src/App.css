@@ -449,3 +449,75 @@
   border-radius: 10px;
   font-weight: 700;
 }
+
+.menu-button {
+  display: none;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 20px;
+    position: relative;
+  }
+
+  .menu-button {
+    display: block;
+  }
+
+  .nav-links {
+    position: absolute;
+    top: 68px;
+    left: 0;
+    right: 0;
+    background-color: #1f2937;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+    display: none;
+    z-index: 20;
+  }
+
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-button {
+    display: inline-block;
+  }
+
+  .page-container {
+    padding: 24px 16px;
+  }
+
+  .hero {
+    padding: 28px;
+  }
+
+  .hero h1 {
+    font-size: 28px;
+  }
+
+  .result-history-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .result-score {
+    align-self: flex-start;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+}
