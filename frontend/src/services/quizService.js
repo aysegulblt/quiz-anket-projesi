@@ -24,3 +24,18 @@ export const deleteQuiz = async (quizId, token) => {
 
   return response.data;
 };
+
+export const getQuizById = async (quizId) => {
+  const response = await axios.get(`${API_URL}/${quizId}`);
+  return response.data;
+};
+
+export const updateQuiz = async (quizId, quizData, token) => {
+  const response = await axios.put(`${API_URL}/${quizId}`, quizData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};

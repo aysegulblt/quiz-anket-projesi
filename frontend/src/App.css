@@ -396,3 +396,56 @@
 .delete-button:hover {
   background-color: #fecaca;
 }
+
+.edit-button {
+  background-color: #e0f2fe;
+  color: #075985;
+  padding: 10px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.edit-button:hover {
+  background-color: #bae6fd;
+}
+
+.quiz-card-actions {
+  gap: 10px;
+}
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.result-history-card {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+
+.result-history-card h3 {
+  margin-bottom: 8px;
+  color: #111827;
+}
+
+.result-history-card p {
+  color: #6b7280;
+}
+
+.result-score {
+  min-width: 80px;
+  text-align: center;
+  background-color: #f3f4f6;
+  color: #111827;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+}

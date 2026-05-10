@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
+
 function Navbar() {
   const { user, logout } = useAuth();
 
@@ -13,6 +14,7 @@ function Navbar() {
         <Link to="/quizzes">Quizler</Link>
         {user && <Link to="/create-quiz">Quiz Oluştur</Link>}
         {user && <Link to="/my-quizzes">Benim Quizlerim</Link>}
+        {user && <Link to="/my-results">Sonuçlarım</Link>}
 
         {!user ? (
           <>

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { deleteQuiz } from "../services/quizService";
+import toast from "react-hot-toast";
 
 function MyQuizzes() {
   const [quizzes, setQuizzes] = useState([]);
@@ -25,6 +26,7 @@ function MyQuizzes() {
         setQuizzes(response.data);
       } catch (error) {
         console.log("Quizler alınamadı:", error);
+        toast.error("Quizler alınamadı.");
       }
     };
 
@@ -42,8 +44,10 @@ function MyQuizzes() {
     await deleteQuiz(quizId, token);
 
     setQuizzes(quizzes.filter((quiz) => quiz._id !== quizId));
+    toast.success("Quiz başarıyla silindi.");
   } catch (error) {
     console.log("Quiz silinemedi:", error);
+    toast.error("Quiz silinemedi.");
   }
 };
 
@@ -68,6 +72,14 @@ function MyQuizzes() {
               </span>
 
               <div className="quiz-card-actions">
+
+                <Link
+                  to={`/edit-quiz/${quiz._id}`}
+                  className="edit-button"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Düzenle
+                </Link>
                 <button
                   className="delete-button"
                   onClick={(e) => {

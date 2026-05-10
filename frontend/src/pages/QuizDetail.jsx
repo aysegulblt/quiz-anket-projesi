@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
+import { saveQuizResult } from "../services/resultService";
 
 function QuizDetail() {
   const { id } = useParams();
@@ -8,6 +11,7 @@ function QuizDetail() {
   const [quiz, setQuiz] = useState(null);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
+  const { token, user } = useAuth();
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -43,13 +47,30 @@ function QuizDetail() {
     return score;
   };
 
-  const handleSubmit = () => {
+    const handleSubmit = async () => {
     if (Object.keys(selectedAnswers).length !== quiz.questions.length) {
-      alert("Lütfen tüm soruları cevaplayınız.");
+      toast.error("Lütfen tüm soruları cevaplayınız.");
       return;
     }
 
     setShowResult(true);
+
+    if (user && token) {
+      try {
+        await saveQuizResult(
+          {
+            quizId: quiz._id,
+            selectedAnswers,
+          },
+          token
+        );
+
+        toast.success("Quiz sonucu kaydedildi.");
+      } catch (error) {
+        toast.error("Quiz sonucu kaydedilemedi.");
+        console.log("Sonuç kaydetme hatası:", error);
+      }
+    }
   };
 
   if (!quiz) {

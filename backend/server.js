@@ -5,6 +5,7 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const quizRoutes = require("./routes/quizRoutes");
+const resultRoutes = require("./routes/resultRoutes");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/quizzes", quizRoutes);
+app.use("/api/results", resultRoutes);
 
 app.get("/", (req, res) => {
   res.send("Quiz Anket API çalışıyor");

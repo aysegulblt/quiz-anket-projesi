@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 function Login() {
   const navigate = useNavigate();
@@ -28,9 +29,10 @@ function Login() {
     try {
       const data = await loginUser(formData);
       login(data.user, data.token);
+      toast.success("Giriş başarılı.");
       navigate("/quizzes");
     } catch (error) {
-      setError(error.response?.data?.message || "Giriş yapılırken hata oluştu.");
+      toast.error(error.response?.data?.message || "Giriş yapılırken hata oluştu.");
     }
   };
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createQuiz } from "../services/quizService";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 function CreateQuiz() {
   const navigate = useNavigate();
@@ -94,10 +95,9 @@ function CreateQuiz() {
 
       await createQuiz(quizData, token);
       navigate("/my-quizzes");
+      toast.success("Quiz başarıyla oluşturuldu.");
     } catch (error) {
-      setError(
-        error.response?.data?.message || "Quiz oluşturulurken hata oluştu."
-      );
+      toast.error(error.response?.data?.message || "Quiz oluşturulurken hata oluştu.");
     }
   };
 
