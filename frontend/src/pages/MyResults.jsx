@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { getMyResults } from "../services/resultService";
-import { useAuth } from "../context/AuthContext";
-import Loading from "../components/Loading";
-import EmptyState from "../components/EmptyState";
 import toast from "react-hot-toast";
+import EmptyState from "../components/EmptyState";
+import Loading from "../components/Loading";
+import { useAuth } from "../context/AuthContext";
+import { getMyResults } from "../services/resultService";
 
 function MyResults() {
   const { token } = useAuth();
-
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -16,8 +15,7 @@ function MyResults() {
       try {
         const data = await getMyResults(token);
         setResults(data);
-      } catch (error) {
-        console.log("Sonuçlar alınamadı:", error);
+      } catch {
         toast.error("Sonuçlar alınamadı.");
       } finally {
         setLoading(false);

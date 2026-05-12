@@ -1,5 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
@@ -8,7 +8,7 @@ function Navbar() {
   const location = useLocation();
 
   const closeMenu = () => setMenuOpen(false);
-
+  const toggleMenu = () => setMenuOpen((current) => !current);
   const isActive = (path) => location.pathname === path;
 
   return (
@@ -19,14 +19,20 @@ function Navbar() {
       </Link>
 
       <button
+        type="button"
         className="menu-button"
-        onClick={() => setMenuOpen(!menuOpen)}
-        aria-label="Menüyü aç"
+        onClick={toggleMenu}
+        aria-controls="primary-navigation"
+        aria-expanded={menuOpen}
+        aria-label={menuOpen ? "Mobil menüyü kapat" : "Mobil menüyü aç"}
       >
-        {menuOpen ? "✕" : "☰"}
+        {menuOpen ? "Kapat" : "Menü"}
       </button>
 
-      <div className={menuOpen ? "nav-links active" : "nav-links"}>
+      <div
+        id="primary-navigation"
+        className={menuOpen ? "nav-links active" : "nav-links"}
+      >
         <Link
           to="/"
           className={isActive("/") ? "nav-link nav-link-active" : "nav-link"}
@@ -34,6 +40,7 @@ function Navbar() {
         >
           Ana Sayfa
         </Link>
+
         <Link
           to="/quizzes"
           className={isActive("/quizzes") ? "nav-link nav-link-active" : "nav-link"}
@@ -51,6 +58,7 @@ function Navbar() {
             >
               Quiz Oluştur
             </Link>
+
             <Link
               to="/my-quizzes"
               className={isActive("/my-quizzes") ? "nav-link nav-link-active" : "nav-link"}
@@ -58,6 +66,7 @@ function Navbar() {
             >
               Quizlerim
             </Link>
+
             <Link
               to="/my-results"
               className={isActive("/my-results") ? "nav-link nav-link-active" : "nav-link"}
@@ -73,6 +82,7 @@ function Navbar() {
             <Link to="/login" className="nav-link" onClick={closeMenu}>
               Giriş
             </Link>
+
             <Link to="/register" className="nav-button" onClick={closeMenu}>
               Kayıt Ol
             </Link>
@@ -81,6 +91,7 @@ function Navbar() {
           <div className="nav-user-area">
             <span className="nav-user">{user.name}</span>
             <button
+              type="button"
               className="logout-button"
               onClick={() => {
                 logout();

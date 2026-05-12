@@ -24,27 +24,29 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/quizzes" element={<QuizList />} />
           <Route
-                path="/create-quiz"
-                element={
-                <ProtectedRoute>
-                  <CreateQuiz />
-                </ProtectedRoute>
-        }/>
-        <Route
-              path="/my-quizzes"
-              element={
-                <ProtectedRoute>
-                  <MyQuizzes />
-                </ProtectedRoute>
-          }/>
+            path="/create-quiz"
+            element={
+              <ProtectedRoute>
+                <CreateQuiz />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-quizzes"
+            element={
+              <ProtectedRoute>
+                <MyQuizzes />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/quizzes/:id" element={<QuizDetail />} />
           <Route
-              path="/edit-quiz/:id"
-              element={
-                <ProtectedRoute>
-                  <EditQuiz />
-                </ProtectedRoute>
-              }
+            path="/edit-quiz/:id"
+            element={
+              <ProtectedRoute>
+                <EditQuiz />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/my-results"

@@ -15,6 +15,16 @@ export const createQuiz = async (quizData, token) => {
 
   return response.data;
 };
+
+export const getMyQuizzes = async (token) => {
+  const response = await axios.get(`${API_URL}/my/quizzes`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
 export const deleteQuiz = async (quizId, token) => {
   const response = await axios.delete(`${API_URL}/${quizId}`, {
     headers: {

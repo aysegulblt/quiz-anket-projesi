@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { getQuizById, updateQuiz } from "../services/quizService";
-import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { getQuizById, updateQuiz } from "../services/quizService";
 
 function EditQuiz() {
   const { id } = useParams();
@@ -19,8 +19,8 @@ function EditQuiz() {
         const quiz = await getQuizById(id);
         setTitle(quiz.title);
         setDescription(quiz.description);
-      } catch (error) {
-        console.log("Quiz bilgileri alınamadı:", error);
+      } catch {
+        toast.error("Quiz bilgileri alınamadı.");
       }
     };
 
@@ -48,9 +48,9 @@ function EditQuiz() {
 
       navigate("/my-quizzes");
       toast.success("Quiz başarıyla güncellendi.");
-    } catch (error) {
+    } catch (submitError) {
       toast.error(
-        error.response?.data?.message || "Quiz güncellenirken hata oluştu."
+        submitError.response?.data?.message || "Quiz güncellenirken hata oluştu."
       );
     }
   };
@@ -84,7 +84,11 @@ function EditQuiz() {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn btn-secondary" onClick={() => navigate("/my-quizzes")}>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={() => navigate("/my-quizzes")}
+          >
             Vazgeç
           </button>
 

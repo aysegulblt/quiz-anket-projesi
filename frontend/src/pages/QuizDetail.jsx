@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
 import toast from "react-hot-toast";
+import { useParams } from "react-router-dom";
+import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
 import { saveQuizResult } from "../services/resultService";
-import Loading from "../components/Loading";
+import { getQuizById } from "../services/quizService";
 
 function QuizDetail() {
   const { id } = useParams();
-
   const [quiz, setQuiz] = useState(null);
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
@@ -17,10 +16,9 @@ function QuizDetail() {
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/quizzes/${id}`);
-        setQuiz(response.data);
-      } catch (error) {
-        console.log("Quiz detayı alınamadı:", error);
+        const data = await getQuizById(id);
+        setQuiz(data);
+      } catch {
         toast.error("Quiz detayı alınamadı.");
       }
     };
@@ -29,12 +27,14 @@ function QuizDetail() {
   }, [id]);
 
   const handleSelectAnswer = (questionIndex, option) => {
-    if (showResult) return;
+    if (showResult) {
+      return;
+    }
 
-    setSelectedAnswers({
-      ...selectedAnswers,
+    setSelectedAnswers((currentAnswers) => ({
+      ...currentAnswers,
       [questionIndex]: option,
-    });
+    }));
   };
 
   const calculateScore = () => {
@@ -42,7 +42,7 @@ function QuizDetail() {
 
     quiz.questions.forEach((question, index) => {
       if (selectedAnswers[index] === question.correctAnswer) {
-        score++;
+        score += 1;
       }
     });
 
@@ -68,9 +68,8 @@ function QuizDetail() {
         );
 
         toast.success("Quiz sonucu kaydedildi.");
-      } catch (error) {
+      } catch {
         toast.error("Quiz sonucu kaydedilemedi.");
-        console.log("Sonuç kaydetme hatası:", error);
       }
     }
   };
@@ -138,7 +137,7 @@ function QuizDetail() {
             <h3>{question.questionText}</h3>
 
             <div className="option-list">
-              {question.options.map((option, i) => {
+              {question.options.map((option, optionIndex) => {
                 const isSelected = selectedAnswers[index] === option;
                 const isCorrect = question.correctAnswer === option;
 
@@ -154,12 +153,15 @@ function QuizDetail() {
 
                 return (
                   <button
-                    key={i}
+                    type="button"
+                    key={optionIndex}
                     className={optionClass}
                     onClick={() => handleSelectAnswer(index, option)}
                   >
-                    <span className="option-letter">{String.fromCharCode(65 + i)}</span>
-                    <span>{option}</span>
+                    <span className="option-letter">
+                      {String.fromCharCode(65 + optionIndex)}
+                    </span>
+                    <span className="option-text">{option}</span>
                   </button>
                 );
               })}
@@ -170,7 +172,7 @@ function QuizDetail() {
 
       {!showResult && (
         <div className="submit-area">
-          <button className="btn btn-primary btn-lg" onClick={handleSubmit}>
+          <button type="button" className="btn btn-primary btn-lg" onClick={handleSubmit}>
             Quiz'i Bitir
           </button>
         </div>

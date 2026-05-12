@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { getAllQuizzes } from "../services/quizService";
+import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import Loading from "../components/Loading";
 import EmptyState from "../components/EmptyState";
+import Loading from "../components/Loading";
+import { getAllQuizzes } from "../services/quizService";
 
 function QuizList() {
   const [quizzes, setQuizzes] = useState([]);
@@ -14,8 +15,8 @@ function QuizList() {
       try {
         const data = await getAllQuizzes();
         setQuizzes(data);
-      } catch (error) {
-        console.log("Quizler alınamadı:", error);
+      } catch {
+        toast.error("Quizler alınamadı.");
       } finally {
         setLoading(false);
       }

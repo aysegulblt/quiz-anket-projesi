@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { deleteQuiz } from "../services/quizService";
 import toast from "react-hot-toast";
-import Loading from "../components/Loading";
+import { Link } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
+import Loading from "../components/Loading";
+import { useAuth } from "../context/AuthContext";
+import { deleteQuiz, getMyQuizzes } from "../services/quizService";
 
 function MyQuizzes() {
   const [quizzes, setQuizzes] = useState([]);
@@ -15,18 +14,9 @@ function MyQuizzes() {
   useEffect(() => {
     const fetchMyQuizzes = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:5000/api/quizzes/my/quizzes",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        setQuizzes(response.data);
-      } catch (error) {
-        console.log("Quizler alınamadı:", error);
+        const data = await getMyQuizzes(token);
+        setQuizzes(data);
+      } catch {
         toast.error("Quizler alınamadı.");
       } finally {
         setLoading(false);
@@ -41,15 +31,17 @@ function MyQuizzes() {
       "Bu quizi silmek istediğinize emin misiniz?"
     );
 
-    if (!confirmDelete) return;
+    if (!confirmDelete) {
+      return;
+    }
 
     try {
       await deleteQuiz(quizId, token);
-
-      setQuizzes(quizzes.filter((quiz) => quiz._id !== quizId));
+      setQuizzes((currentQuizzes) =>
+        currentQuizzes.filter((quiz) => quiz._id !== quizId)
+      );
       toast.success("Quiz başarıyla silindi.");
-    } catch (error) {
-      console.log("Quiz silinemedi:", error);
+    } catch {
       toast.error("Quiz silinemedi.");
     }
   };
@@ -91,6 +83,7 @@ function MyQuizzes() {
                 </Link>
 
                 <button
+                  type="button"
                   className="btn btn-small btn-danger"
                   onClick={() => handleDeleteQuiz(quiz._id)}
                 >
