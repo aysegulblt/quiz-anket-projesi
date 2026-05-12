@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
@@ -13,8 +13,6 @@ function Login() {
     password: "",
   });
 
-  const [error, setError] = useState("");
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -24,10 +22,15 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+
+    if (!formData.email.trim() || !formData.password.trim()) {
+      toast.error("Email ve şifre alanları zorunludur.");
+      return;
+    }
 
     try {
       const data = await loginUser(formData);
+
       login(data.user, data.token);
       toast.success("Giriş başarılı.");
       navigate("/quizzes");
@@ -37,33 +40,54 @@ function Login() {
   };
 
   return (
-    <div className="auth-container">
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <h2>Giriş Yap</h2>
-        <p>Hesabına giriş yaparak quiz oluşturabilir ve çözebilirsin.</p>
+    <div className="auth-page">
+      <div className="auth-info-panel">
+        <span className="hero-badge">Quizora</span>
 
-        {error && <div className="error-message">{error}</div>}
+        <h1>Quizlerini oluştur, sonuçlarını takip et.</h1>
 
-        <label>Email</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="ornek@mail.com"
-          value={formData.email}
-          onChange={handleChange}
-        />
+        <p>
+          Hesabına giriş yaparak quiz oluşturabilir, çözebilir ve
+          geçmiş sonuçlarını tek ekrandan takip edebilirsin.
+        </p>
 
-        <label>Şifre</label>
-        <input
-          type="password"
-          name="password"
-          placeholder="Şifrenizi giriniz"
-          value={formData.password}
-          onChange={handleChange}
-        />
+        <div className="auth-mini-card">
+          <strong>3 adımda başla</strong>
+          <span>Giriş yap → Quiz seç → Sonucunu görüntüle</span>
+        </div>
+      </div>
 
-        <button type="submit">Giriş Yap</button>
-      </form>
+      <div className="auth-container">
+        <form className="auth-card" onSubmit={handleSubmit}>
+          <h2>Giriş Yap</h2>
+
+          <p>Hesabına giriş yaparak devam et.</p>
+
+          <label>Email</label>
+          <input
+            type="email"
+            name="email"
+            placeholder="ornek@mail.com"
+            value={formData.email}
+            onChange={handleChange}
+          />
+
+          <label>Şifre</label>
+          <input
+            type="password"
+            name="password"
+            placeholder="Şifrenizi giriniz"
+            value={formData.password}
+            onChange={handleChange}
+          />
+
+          <button type="submit">Giriş Yap</button>
+
+          <div className="auth-footer-text">
+            Hesabın yok mu? <Link to="/register">Kayıt ol</Link>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

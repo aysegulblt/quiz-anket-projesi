@@ -28,8 +28,14 @@ function MyResults() {
   }, [token]);
 
   return (
-    <div>
-      <h1 className="page-title">Sonuç Geçmişim</h1>
+    <div className="page-layout">
+      <div className="page-header">
+        <div>
+          <span className="badge">Sonuçlarım</span>
+          <h1>Quiz Sonuçların</h1>
+          <p>Çözdüğün quizlerin sonuçlarını buradan takip edebilirsin.</p>
+        </div>
+      </div>
 
       {loading ? (
         <Loading />
@@ -40,19 +46,36 @@ function MyResults() {
         />
       ) : (
         <div className="result-list">
-          {results.map((result) => (
-            <div key={result._id} className="result-history-card">
-              <div>
-                <h3>{result.quiz?.title || "Quiz bilgisi yok"}</h3>
+          {results.map((result) => {
+            const percent = result.totalQuestions > 0
+              ? Math.round((result.score / result.totalQuestions) * 100)
+              : 0;
 
-                <p>{result.quiz?.description}</p>
-              </div>
+            return (
+              <div key={result._id} className="result-card">
+                <div className="result-card-info">
+                  <h3>{result.quiz?.title || "Quiz bilgisi yok"}</h3>
+                  <p>{result.quiz?.description}</p>
+                  {result.createdAt && (
+                    <small className="result-date">
+                      {new Date(result.createdAt).toLocaleDateString("tr-TR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </small>
+                  )}
+                </div>
 
-              <div className="result-score">
-                {result.score} / {result.totalQuestions}
+                <div className="result-card-score">
+                  <div className="score-value">
+                    {result.score}/{result.totalQuestions}
+                  </div>
+                  <div className="score-percent">%{percent}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

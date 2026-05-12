@@ -55,8 +55,14 @@ function MyQuizzes() {
   };
 
   return (
-    <div>
-      <h1 className="page-title">Benim Quizlerim</h1>
+    <div className="page-layout">
+      <div className="page-header">
+        <div>
+          <span className="badge">Quizlerim</span>
+          <h1>Oluşturduğun Quizler</h1>
+          <p>Quizlerini buradan yönetebilir, düzenleyebilir veya silebilirsin.</p>
+        </div>
+      </div>
 
       {loading ? (
         <Loading />
@@ -68,39 +74,30 @@ function MyQuizzes() {
       ) : (
         <div className="quiz-grid">
           {quizzes.map((quiz) => (
-            <Link
-              key={quiz._id}
-              to={`/quizzes/${quiz._id}`}
-              className="quiz-link"
-            >
-              <div className="quiz-card">
+            <div key={quiz._id} className="quiz-card">
+              <Link to={`/quizzes/${quiz._id}`} className="quiz-link">
                 <h3>{quiz.title}</h3>
-
                 <p>{quiz.description}</p>
+                <span className="quiz-card-meta">{quiz.questions.length} soru</span>
+              </Link>
 
-                <span>{quiz.questions.length} soru</span>
+              <div className="quiz-card-actions">
+                <Link
+                  to={`/edit-quiz/${quiz._id}`}
+                  className="btn btn-small btn-outline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Düzenle
+                </Link>
 
-                <div className="quiz-card-actions">
-                  <Link
-                    to={`/edit-quiz/${quiz._id}`}
-                    className="edit-button"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Düzenle
-                  </Link>
-
-                  <button
-                    className="delete-button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDeleteQuiz(quiz._id);
-                    }}
-                  >
-                    Sil
-                  </button>
-                </div>
+                <button
+                  className="btn btn-small btn-danger"
+                  onClick={() => handleDeleteQuiz(quiz._id)}
+                >
+                  Sil
+                </button>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       )}

@@ -56,10 +56,16 @@ function EditQuiz() {
   };
 
   return (
-    <div>
-      <h1 className="page-title">Quiz Düzenle</h1>
+    <div className="page-layout">
+      <div className="page-header">
+        <div>
+          <span className="badge">Düzenle</span>
+          <h1>Quiz Bilgilerini Güncelle</h1>
+          <p>Quiz başlığını ve açıklamasını buradan düzenleyebilirsin.</p>
+        </div>
+      </div>
 
-      <form className="quiz-form" onSubmit={handleSubmit}>
+      <form className="form-card" onSubmit={handleSubmit}>
         {error && <div className="error-message">{error}</div>}
 
         <div className="form-section">
@@ -78,11 +84,11 @@ function EditQuiz() {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="secondary-button" onClick={() => navigate("/my-quizzes")}>
+          <button type="button" className="btn btn-secondary" onClick={() => navigate("/my-quizzes")}>
             Vazgeç
           </button>
 
-          <button type="submit" className="primary-button">
+          <button type="submit" className="btn btn-primary">
             Güncelle
           </button>
         </div>

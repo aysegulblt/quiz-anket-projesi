@@ -7,6 +7,7 @@ import EmptyState from "../components/EmptyState";
 function QuizList() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -15,8 +16,7 @@ function QuizList() {
         setQuizzes(data);
       } catch (error) {
         console.log("Quizler alınamadı:", error);
-      }
-      finally {
+      } finally {
         setLoading(false);
       }
     };
@@ -24,43 +24,56 @@ function QuizList() {
     fetchQuizzes();
   }, []);
 
+  const filteredQuizzes = quizzes.filter((quiz) =>
+    quiz.title.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   return (
-    <div>
-      <h2 className="page-title">Tüm Quizler</h2>
+    <div className="page-layout">
+      <div className="page-header">
+        <div>
+          <span className="badge">Quiz Kütüphanesi</span>
+          <h1>Tüm Quizler</h1>
+          <p>Farklı konulardaki quizleri keşfet ve bilgini test et.</p>
+        </div>
+
+        <input
+          className="search-input"
+          type="text"
+          placeholder="Quiz ara..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+        />
+      </div>
+
       {loading ? (
         <Loading />
-      ) : quizzes.length === 0 ? (
+      ) : filteredQuizzes.length === 0 ? (
         <EmptyState
-          title="Henüz quiz bulunmuyor"
-          description="İlk quizi oluşturduğunuzda burada listelenecek."
+          title="Quiz bulunamadı"
+          description="Arama sonucuna uygun bir quiz bulunmuyor."
         />
       ) : (
         <div className="quiz-grid">
-          {/* mevcut map kısmı */}
+          {filteredQuizzes.map((quiz) => (
+            <Link
+              key={quiz._id}
+              to={`/quizzes/${quiz._id}`}
+              className="quiz-link"
+            >
+              <div className="quiz-card">
+                <h3>{quiz.title}</h3>
+                <p>{quiz.description}</p>
+
+                <div className="quiz-card-footer">
+                  <span>{quiz.questions.length} soru</span>
+                  <span className="quiz-card-action">Çöz →</span>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       )}
-      
-
-      <div className="quiz-grid">
-        {quizzes.map((quiz) => (
-          <div key={quiz._id} className="quiz-card">
-            <Link
-                to={`/quizzes/${quiz._id}`}
-                className="quiz-link"
-                >
-                <div className="quiz-card">
-                    <h3>{quiz.title}</h3>
-
-                    <p>{quiz.description}</p>
-
-                    <span>
-                    {quiz.questions.length} soru
-                    </span>
-                </div>
-            </Link>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
