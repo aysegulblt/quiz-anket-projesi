@@ -1,13 +1,32 @@
+const mongoose = require("mongoose");
 const Quiz = require("../models/Quiz");
 const QuizResult = require("../models/QuizResult");
+
+const getSelectedAnswer = (selectedAnswers, index) => {
+  if (Array.isArray(selectedAnswers)) {
+    return selectedAnswers[index];
+  }
+
+  if (selectedAnswers && typeof selectedAnswers === "object") {
+    return selectedAnswers[index] ?? selectedAnswers[String(index)];
+  }
+
+  return undefined;
+};
 
 const saveQuizResult = async (req, res) => {
   try {
     const { quizId, selectedAnswers } = req.body;
 
-    if (!quizId || !selectedAnswers) {
+    if (!quizId || selectedAnswers === undefined) {
       return res.status(400).json({
-        message: "Quiz ID ve cevaplar zorunludur.",
+        message: "Quiz ve cevap bilgileri zorunludur.",
+      });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(quizId)) {
+      return res.status(404).json({
+        message: "Quiz bulunamadi.",
       });
     }
 
@@ -15,27 +34,41 @@ const saveQuizResult = async (req, res) => {
 
     if (!quiz) {
       return res.status(404).json({
-        message: "Quiz bulunamadı.",
+        message: "Quiz bulunamadi.",
       });
     }
 
     let score = 0;
+    const answers = [];
 
-    const answers = quiz.questions.map((question, index) => {
-      const selectedAnswer = selectedAnswers[index];
+    for (const [index, question] of quiz.questions.entries()) {
+      const selectedAnswer = getSelectedAnswer(selectedAnswers, index);
+
+      if (!selectedAnswer) {
+        return res.status(400).json({
+          message: "Sonucu kaydetmeden once tum sorulari cevaplayin.",
+        });
+      }
+
+      if (!question.options.includes(selectedAnswer)) {
+        return res.status(400).json({
+          message: "Gonderilen cevaplardan biri gecersiz.",
+        });
+      }
+
       const isCorrect = selectedAnswer === question.correctAnswer;
 
       if (isCorrect) {
-        score++;
+        score += 1;
       }
 
-      return {
+      answers.push({
         questionText: question.questionText,
         selectedAnswer,
         correctAnswer: question.correctAnswer,
         isCorrect,
-      };
-    });
+      });
+    }
 
     const result = await QuizResult.create({
       user: req.user._id,
@@ -45,13 +78,13 @@ const saveQuizResult = async (req, res) => {
       answers,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Quiz sonucu kaydedildi.",
       result,
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Quiz sonucu kaydedilirken hata oluştu.",
+    return res.status(500).json({
+      message: "Quiz sonucu kaydedilirken bir sorun olustu.",
     });
   }
 };
@@ -62,10 +95,10 @@ const getMyResults = async (req, res) => {
       .populate("quiz", "title description")
       .sort({ createdAt: -1 });
 
-    res.status(200).json(results);
+    return res.status(200).json(results);
   } catch (error) {
-    res.status(500).json({
-      message: "Sonuçlar getirilirken hata oluştu.",
+    return res.status(500).json({
+      message: "Sonuclar getirilirken bir sorun olustu.",
     });
   }
 };

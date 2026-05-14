@@ -2,28 +2,35 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-const createToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+const createToken = (userId) =>
+  jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
-};
+
+const normalizeEmail = (email = "") => email.trim().toLowerCase();
+const normalizeName = (name = "") => name.trim();
+const normalizePassword = (password = "") => password.trim();
 
 const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const name = normalizeName(req.body.name);
+    const email = normalizeEmail(req.body.email);
+    const password = normalizePassword(req.body.password);
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "Tüm alanlar zorunludur." });
+      return res.status(400).json({ message: "Tum alanlar zorunludur." });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ message: "Şifre en az 6 karakter olmalıdır." });
+      return res
+        .status(400)
+        .json({ message: "Sifre en az 6 karakter olmalidir." });
     }
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json({ message: "Bu email zaten kayıtlı." });
+      return res.status(400).json({ message: "Bu email zaten kayitli." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -36,8 +43,8 @@ const register = async (req, res) => {
 
     const token = createToken(user._id);
 
-    res.status(201).json({
-      message: "Kayıt başarılı.",
+    return res.status(201).json({
+      message: "Kayit basarili.",
       token,
       user: {
         id: user._id,
@@ -46,34 +53,43 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Kayıt sırasında hata oluştu." });
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Bu email zaten kayitli." });
+    }
+
+    return res
+      .status(500)
+      .json({ message: "Kayit sirasinda bir sorun olustu." });
   }
 };
 
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = normalizeEmail(req.body.email);
+    const password = normalizePassword(req.body.password);
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email ve şifre zorunludur." });
+      return res
+        .status(400)
+        .json({ message: "Email ve sifre alanlari zorunludur." });
     }
 
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({ message: "Email veya şifre hatalı." });
+      return res.status(400).json({ message: "Email veya sifre hatali." });
     }
 
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: "Email veya şifre hatalı." });
+      return res.status(400).json({ message: "Email veya sifre hatali." });
     }
 
     const token = createToken(user._id);
 
-    res.status(200).json({
-      message: "Giriş başarılı.",
+    return res.status(200).json({
+      message: "Giris basarili.",
       token,
       user: {
         id: user._id,
@@ -82,7 +98,9 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ message: "Giriş sırasında hata oluştu." });
+    return res
+      .status(500)
+      .json({ message: "Giris sirasinda bir sorun olustu." });
   }
 };
 
