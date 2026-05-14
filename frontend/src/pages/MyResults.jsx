@@ -1,3 +1,4 @@
+import { Award } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import EmptyState from "../components/EmptyState";
@@ -67,7 +68,10 @@ function MyResults() {
 
                 <div className="result-card-score">
                   <div className="score-value">
-                    {result.score}/{result.totalQuestions}
+                    <Award size={14} strokeWidth={1.9} aria-hidden="true" />
+                    <span>
+                      {result.score}/{result.totalQuestions}
+                    </span>
                   </div>
                   <div className="score-percent">%{percent}</div>
                 </div>

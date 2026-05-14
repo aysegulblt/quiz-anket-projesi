@@ -1,8 +1,9 @@
+import { FileText, PlusCircle } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createQuiz } from "../services/quizService";
-import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { createQuiz } from "../services/quizService";
 
 function CreateQuiz() {
   const navigate = useNavigate();
@@ -10,7 +11,6 @@ function CreateQuiz() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-
   const [questions, setQuestions] = useState([
     {
       questionText: "",
@@ -18,7 +18,6 @@ function CreateQuiz() {
       correctAnswer: "",
     },
   ]);
-
   const [error, setError] = useState("");
 
   const handleQuestionChange = (index, value) => {
@@ -87,13 +86,15 @@ function CreateQuiz() {
     }
 
     try {
-      const quizData = {
-        title,
-        description,
-        questions,
-      };
+      await createQuiz(
+        {
+          title,
+          description,
+          questions,
+        },
+        token
+      );
 
-      await createQuiz(quizData, token);
       navigate("/my-quizzes");
       toast.success("Quiz başarıyla oluşturuldu.");
     } catch (error) {
@@ -103,30 +104,30 @@ function CreateQuiz() {
 
   return (
     <div className="page-layout">
-
       <div className="page-header">
         <div>
-          <span className="badge">Quiz Oluşturucu</span>
+          <span className="badge badge-with-icon">
+            <FileText size={14} strokeWidth={1.9} aria-hidden="true" />
+            Quiz Oluşturucu
+          </span>
           <h1>Yeni Quiz Oluştur</h1>
           <p>
-            Kendi sorularını hazırlayarak kullanıcıların
-            çözebileceği yeni quizler oluştur.
+            Kendi sorularını hazırlayarak kullanıcıların çözebileceği yeni
+            quizler oluştur.
           </p>
         </div>
 
         <div className="summary-card">
+          <span className="summary-card-icon" aria-hidden="true">
+            <FileText size={16} strokeWidth={1.9} />
+          </span>
           <span>Toplam Soru</span>
           <strong>{questions.length}</strong>
         </div>
       </div>
 
       <form className="create-quiz-form" onSubmit={handleSubmit}>
-
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
+        {error && <div className="error-message">{error}</div>}
 
         <div className="form-card">
           <h3>Quiz Bilgileri</h3>
@@ -149,15 +150,10 @@ function CreateQuiz() {
 
         <div className="question-editor-list">
           {questions.map((question, questionIndex) => (
-            <div
-              key={questionIndex}
-              className="question-editor-card"
-            >
+            <div key={questionIndex} className="question-editor-card">
               <div className="question-editor-header">
                 <div>
-                  <span className="badge badge-small">
-                    Soru {questionIndex + 1}
-                  </span>
+                  <span className="badge badge-small">Soru {questionIndex + 1}</span>
                 </div>
 
                 <button
@@ -174,9 +170,7 @@ function CreateQuiz() {
                 type="text"
                 placeholder="Soru metnini yazınız"
                 value={question.questionText}
-                onChange={(e) =>
-                  handleQuestionChange(questionIndex, e.target.value)
-                }
+                onChange={(e) => handleQuestionChange(questionIndex, e.target.value)}
               />
 
               <label>Seçenekler</label>
@@ -188,11 +182,7 @@ function CreateQuiz() {
                     placeholder={`Seçenek ${optionIndex + 1}`}
                     value={option}
                     onChange={(e) =>
-                      handleOptionChange(
-                        questionIndex,
-                        optionIndex,
-                        e.target.value
-                      )
+                      handleOptionChange(questionIndex, optionIndex, e.target.value)
                     }
                   />
                 ))}
@@ -202,21 +192,13 @@ function CreateQuiz() {
               <select
                 value={question.correctAnswer}
                 onChange={(e) =>
-                  handleCorrectAnswerChange(
-                    questionIndex,
-                    e.target.value
-                  )
+                  handleCorrectAnswerChange(questionIndex, e.target.value)
                 }
               >
-                <option value="">
-                  Doğru cevabı seçiniz
-                </option>
+                <option value="">Doğru cevabı seçiniz</option>
 
                 {question.options.map((option, optionIndex) => (
-                  <option
-                    key={optionIndex}
-                    value={option}
-                  >
+                  <option key={optionIndex} value={option}>
                     {option || `Seçenek ${optionIndex + 1}`}
                   </option>
                 ))}
@@ -231,19 +213,15 @@ function CreateQuiz() {
             className="btn btn-secondary"
             onClick={addQuestion}
           >
-            + Yeni Soru Ekle
+            <PlusCircle size={16} strokeWidth={1.9} aria-hidden="true" />
+            Yeni Soru Ekle
           </button>
 
-          <button
-            type="submit"
-            className="btn btn-primary"
-          >
+          <button type="submit" className="btn btn-primary">
             Quiz Kaydet
           </button>
         </div>
-
       </form>
-
     </div>
   );
 }

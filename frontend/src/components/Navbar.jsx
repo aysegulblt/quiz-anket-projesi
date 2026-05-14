@@ -1,3 +1,4 @@
+import { BookOpen, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -14,7 +15,9 @@ function Navbar() {
   return (
     <nav className="navbar">
       <Link to="/" className="nav-logo" onClick={closeMenu}>
-        <span className="logo-icon">Q</span>
+        <span className="logo-icon" aria-hidden="true">
+          <BookOpen size={16} strokeWidth={1.9} />
+        </span>
         <span>Quizora</span>
       </Link>
 
@@ -26,7 +29,7 @@ function Navbar() {
         aria-expanded={menuOpen}
         aria-label={menuOpen ? "Mobil menüyü kapat" : "Mobil menüyü aç"}
       >
-        {menuOpen ? "Kapat" : "Menü"}
+        {menuOpen ? <X size={20} strokeWidth={1.9} /> : <Menu size={20} strokeWidth={1.9} />}
       </button>
 
       <div
