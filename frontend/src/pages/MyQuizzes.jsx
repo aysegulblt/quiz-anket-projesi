@@ -9,15 +9,21 @@ import { deleteQuiz, getMyQuizzes } from "../services/quizService";
 function MyQuizzes() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const { token } = useAuth();
 
   useEffect(() => {
     const fetchMyQuizzes = async () => {
       try {
+        setLoading(true);
+        setLoadError("");
         const data = await getMyQuizzes(token);
         setQuizzes(data);
-      } catch {
-        toast.error("Quizler alınamadı.");
+      } catch (error) {
+        const message =
+          error.response?.data?.message || "Quizlerin şu anda alınamadı.";
+        setLoadError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -41,8 +47,10 @@ function MyQuizzes() {
         currentQuizzes.filter((quiz) => quiz._id !== quizId)
       );
       toast.success("Quiz başarıyla silindi.");
-    } catch {
-      toast.error("Quiz silinemedi.");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Quiz silinirken bir sorun oluştu."
+      );
     }
   };
 
@@ -56,14 +64,27 @@ function MyQuizzes() {
         </div>
       </div>
 
-      {loading ? (
-        <Loading />
-      ) : quizzes.length === 0 ? (
+      {loading ? <Loading message="Quizlerin yükleniyor..." /> : null}
+
+      {!loading && loadError ? (
         <EmptyState
-          title="Henüz quiz oluşturmadınız"
-          description="Yeni bir quiz oluşturduğunuzda burada görünecek."
+          title="Quizlerin yüklenemedi"
+          description="Quizlerini getirirken bir sorun oluştu. Lütfen tekrar deneyin."
+          actionLabel="Tekrar Dene"
+          actionOnClick={() => window.location.reload()}
         />
-      ) : (
+      ) : null}
+
+      {!loading && !loadError && quizzes.length === 0 ? (
+        <EmptyState
+          title="Henüz quiz oluşturmadın"
+          description="İlk quizini oluşturduğunda burada listelenecek."
+          actionLabel="Yeni Quiz Oluştur"
+          actionTo="/create-quiz"
+        />
+      ) : null}
+
+      {!loading && !loadError && quizzes.length > 0 ? (
         <div className="quiz-grid">
           {quizzes.map((quiz) => (
             <div key={quiz._id} className="quiz-card">
@@ -77,7 +98,7 @@ function MyQuizzes() {
                 <Link
                   to={`/edit-quiz/${quiz._id}`}
                   className="btn btn-small btn-outline"
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(event) => event.stopPropagation()}
                 >
                   Düzenle
                 </Link>
@@ -93,7 +114,7 @@ function MyQuizzes() {
             </div>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

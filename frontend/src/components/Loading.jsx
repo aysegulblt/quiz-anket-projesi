@@ -1,8 +1,8 @@
-function Loading() {
+function Loading({ message = "Yükleniyor..." }) {
   return (
     <div className="loading-box">
       <div className="spinner"></div>
-      <p>Yükleniyor...</p>
+      <p>{message}</p>
     </div>
   );
 }

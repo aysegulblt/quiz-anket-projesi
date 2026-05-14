@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
+import EmptyState from "../components/EmptyState";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
 import { saveQuizResult } from "../services/resultService";
@@ -8,18 +9,30 @@ import { getQuizById } from "../services/quizService";
 
 function QuizDetail() {
   const { id } = useParams();
+  const { token, user } = useAuth();
   const [quiz, setQuiz] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
-  const { token, user } = useAuth();
+  const [isSubmittingResult, setIsSubmittingResult] = useState(false);
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
+        setLoading(true);
+        setLoadError("");
         const data = await getQuizById(id);
         setQuiz(data);
-      } catch {
-        toast.error("Quiz detayı alınamadı.");
+        setSelectedAnswers({});
+        setShowResult(false);
+      } catch (error) {
+        const message =
+          error.response?.data?.message || "Quiz detayları şu anda alınamadı.";
+        setLoadError(message);
+        toast.error(message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -50,8 +63,16 @@ function QuizDetail() {
   };
 
   const handleSubmit = async () => {
+    if (!quiz) {
+      return;
+    }
+
     if (Object.keys(selectedAnswers).length !== quiz.questions.length) {
-      toast.error("Lütfen tüm soruları cevaplayınız.");
+      toast.error("Sonucu görmek için önce tüm soruları cevaplayın.");
+      return;
+    }
+
+    if (isSubmittingResult) {
       return;
     }
 
@@ -59,6 +80,7 @@ function QuizDetail() {
 
     if (user && token) {
       try {
+        setIsSubmittingResult(true);
         await saveQuizResult(
           {
             quizId: quiz._id,
@@ -68,20 +90,40 @@ function QuizDetail() {
         );
 
         toast.success("Quiz sonucu kaydedildi.");
-      } catch {
-        toast.error("Quiz sonucu kaydedilemedi.");
+      } catch (error) {
+        toast.error(
+          error.response?.data?.message ||
+            "Quiz sonucu kaydedilirken bir sorun oluştu."
+        );
+      } finally {
+        setIsSubmittingResult(false);
       }
+    } else {
+      toast("Sonucu kaydetmek için giriş yapabilirsiniz.");
     }
   };
 
-  if (!quiz) {
-    return <Loading />;
+  if (loading) {
+    return <Loading message="Quiz yükleniyor..." />;
+  }
+
+  if (loadError || !quiz) {
+    return (
+      <EmptyState
+        title="Quiz açılamadı"
+        description="İstenen quiz bulunamadı veya şu anda görüntülenemiyor."
+        actionLabel="Quizlere Dön"
+        actionTo="/quizzes"
+      />
+    );
   }
 
   const answeredCount = Object.keys(selectedAnswers).length;
   const totalQuestions = quiz.questions.length;
-  const progressPercent = Math.round((answeredCount / totalQuestions) * 100);
+  const progressPercent =
+    totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
   const score = showResult ? calculateScore() : 0;
+  const allQuestionsAnswered = answeredCount === totalQuestions;
 
   return (
     <div className="page-layout">
@@ -111,7 +153,7 @@ function QuizDetail() {
         </div>
       </div>
 
-      {showResult && (
+      {showResult ? (
         <div className="result-highlight">
           <div>
             <h2>Sonuç</h2>
@@ -124,14 +166,14 @@ function QuizDetail() {
             {score} / {totalQuestions}
           </div>
         </div>
-      )}
+      ) : null}
 
       <div className="question-list">
         {quiz.questions.map((question, index) => (
           <div key={question._id} className="question-card">
             <div className="question-topline">
               <span>Soru {index + 1}</span>
-              <small>{selectedAnswers[index] ? "✓ Cevaplandı" : "Bekliyor"}</small>
+              <small>{selectedAnswers[index] ? "Cevaplandı" : "Bekliyor"}</small>
             </div>
 
             <h3>{question.questionText}</h3>
@@ -170,13 +212,26 @@ function QuizDetail() {
         ))}
       </div>
 
-      {!showResult && (
+      {!showResult ? (
         <div className="submit-area">
-          <button type="button" className="btn btn-primary btn-lg" onClick={handleSubmit}>
-            Quiz'i Bitir
+          <p className="submit-hint">
+            {!allQuestionsAnswered
+              ? "Sonucu görmek için önce tüm soruları cevaplayın."
+              : user
+                ? "Quiz bitirildiğinde sonucunuz hesabınıza kaydedilir."
+                : "Misafir olarak sonucu görebilirsiniz. Kaydetmek için giriş yapın."}
+          </p>
+
+          <button
+            type="button"
+            className="btn btn-primary btn-lg"
+            onClick={handleSubmit}
+            disabled={!allQuestionsAnswered || isSubmittingResult}
+          >
+            {isSubmittingResult ? "Kaydediliyor..." : "Quizi Bitir"}
           </button>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

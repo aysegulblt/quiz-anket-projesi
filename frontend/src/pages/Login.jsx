@@ -1,41 +1,51 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../services/authService";
-import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { loginUser } from "../services/authService";
 
 function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
-
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleChange = (event) => {
+    setFormData((currentData) => ({
+      ...currentData,
+      [event.target.name]: event.target.value,
+    }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    if (!formData.email.trim() || !formData.password.trim()) {
-      toast.error("Email ve şifre alanları zorunludur.");
+    const payload = {
+      email: formData.email.trim(),
+      password: formData.password,
+    };
+
+    if (!payload.email || !payload.password.trim()) {
+      toast.error("Email ve şifre alanlarını doldurun.");
       return;
     }
 
     try {
-      const data = await loginUser(formData);
+      setIsSubmitting(true);
+      const data = await loginUser(payload);
 
       login(data.user, data.token);
       toast.success("Giriş başarılı.");
       navigate("/quizzes");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Giriş yapılırken hata oluştu.");
+      toast.error(
+        error.response?.data?.message || "Giriş yapılırken bir sorun oluştu."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -47,41 +57,48 @@ function Login() {
         <h1>Quizlerini oluştur, sonuçlarını takip et.</h1>
 
         <p>
-          Hesabına giriş yaparak quiz oluşturabilir, çözebilir ve
-          geçmiş sonuçlarını tek ekrandan takip edebilirsin.
+          Hesabına giriş yaparak quiz oluşturabilir, çözebilir ve geçmiş
+          sonuçlarını tek ekrandan takip edebilirsin.
         </p>
 
         <div className="auth-mini-card">
           <strong>3 adımda başla</strong>
-          <span>Giriş yap → Quiz seç → Sonucunu görüntüle</span>
+          <span>Giriş yap, quiz seç ve sonucunu görüntüle.</span>
         </div>
       </div>
 
       <div className="auth-container">
         <form className="auth-card" onSubmit={handleSubmit}>
           <h2>Giriş Yap</h2>
-
           <p>Hesabına giriş yaparak devam et.</p>
 
-          <label>Email</label>
+          <label htmlFor="login-email">Email</label>
           <input
+            id="login-email"
             type="email"
             name="email"
             placeholder="ornek@mail.com"
             value={formData.email}
             onChange={handleChange}
+            autoComplete="email"
+            disabled={isSubmitting}
           />
 
-          <label>Şifre</label>
+          <label htmlFor="login-password">Şifre</label>
           <input
+            id="login-password"
             type="password"
             name="password"
-            placeholder="Şifrenizi giriniz"
+            placeholder="Şifrenizi girin"
             value={formData.password}
             onChange={handleChange}
+            autoComplete="current-password"
+            disabled={isSubmitting}
           />
 
-          <button type="submit">Giriş Yap</button>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Giriş yapılıyor..." : "Giriş Yap"}
+          </button>
 
           <div className="auth-footer-text">
             Hesabın yok mu? <Link to="/register">Kayıt ol</Link>

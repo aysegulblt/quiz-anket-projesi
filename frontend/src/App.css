@@ -36,7 +36,10 @@
   display: flex; align-items: center; gap: 10px; margin-left: 6px;
   flex-wrap: wrap; justify-content: flex-end;
 }
-.nav-user { color: #9ca3af; font-size: 13px; font-weight: 500; }
+.nav-user {
+  color: #9ca3af; font-size: 13px; font-weight: 500;
+  max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .logout-button {
   background: transparent; border: 1px solid #374151; color: #d1d5db;
   padding: 6px 14px; border-radius: 7px; font-size: 13px; font-weight: 500;
@@ -77,6 +80,9 @@
 .btn-danger:hover { background-color: #fee2e2; }
 .btn-small { padding: 6px 14px; font-size: 13px; border-radius: 7px; }
 .btn-lg { padding: 12px 28px; font-size: 15px; }
+.btn:disabled {
+  opacity: 0.65; cursor: not-allowed; pointer-events: none;
+}
 
 /* ========== INPUTS ========== */
 .form-card input, .form-card textarea, .form-card select,
@@ -88,7 +94,14 @@
 }
 .form-card input:focus, .form-card textarea:focus, .form-card select:focus,
 .create-quiz-form input:focus, .create-quiz-form textarea:focus, .create-quiz-form select:focus,
-.auth-card input:focus { outline: none; border-color: #ea580c; }
+.auth-card input:focus {
+  outline: none; border-color: #ea580c; box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
+.form-card input:disabled, .form-card textarea:disabled, .form-card select:disabled,
+.create-quiz-form input:disabled, .create-quiz-form textarea:disabled, .create-quiz-form select:disabled,
+.auth-card input:disabled {
+  background-color: #f9fafb; color: #6b7280;
+}
 .form-card textarea, .create-quiz-form textarea { min-height: 80px; resize: vertical; }
 .form-card label, .create-quiz-form label, .auth-card label {
   display: block; margin-bottom: 5px; margin-top: 14px; font-weight: 600;
@@ -123,7 +136,9 @@
   font-size: 14px; font-family: inherit; background-color: white;
   transition: border-color 0.15s ease; max-width: 100%;
 }
-.search-input:focus { outline: none; border-color: #ea580c; }
+.search-input:focus {
+  outline: none; border-color: #ea580c; box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.12);
+}
 
 /* ========== CARDS ========== */
 .quiz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
@@ -178,6 +193,7 @@
 }
 .empty-state h3 { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 6px; }
 .empty-state p { color: #6b7280; font-size: 14px; }
+.empty-state-action { margin-top: 18px; }
 
 /* ========== HOME PAGE ========== */
 .home-page { display: flex; flex-direction: column; gap: 48px; }
@@ -269,6 +285,7 @@
   transition: background-color 0.15s ease;
 }
 .auth-card button:hover { background-color: #c2410c; }
+.auth-card button:disabled { background-color: #fb923c; }
 .auth-footer-text { margin-top: 16px; text-align: center; color: #6b7280; font-size: 13px; }
 .auth-footer-text a { color: #ea580c; font-weight: 600; }
 
@@ -319,7 +336,12 @@
 .correct-option .option-letter { background-color: #16a34a; color: white; }
 .wrong-option { border-color: #dc2626; background-color: #fef2f2; }
 .wrong-option .option-letter { background-color: #dc2626; color: white; }
-.submit-area { display: flex; justify-content: flex-end; }
+.submit-area {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+}
+.submit-hint {
+  color: #6b7280; font-size: 14px; text-align: right;
+}
 
 /* ========== CREATE QUIZ ========== */
 .create-quiz-form { display: flex; flex-direction: column; gap: 20px; }
@@ -334,6 +356,13 @@
   position: sticky; bottom: 16px; display: flex; justify-content: space-between; gap: 12px;
   background-color: white; border: 1px solid #e5e7eb; padding: 14px 20px;
   border-radius: 12px; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); align-items: center;
+}
+.sticky-actions-note {
+  color: #6b7280; font-size: 13px; line-height: 1.5; max-width: 360px;
+}
+.sticky-actions-buttons,
+.inline-actions {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
 }
 
 /* ========== RESULTS ========== */
@@ -397,10 +426,16 @@
   .hero-card { width: 100%; }
   .options-grid { grid-template-columns: 1fr; }
   .question-editor-header { flex-direction: column; align-items: stretch; gap: 10px; }
-  .sticky-actions { position: static; flex-direction: column; padding: 16px; }
-  .sticky-actions .btn { width: 100%; }
+  .sticky-actions { position: static; flex-direction: column; padding: 16px; align-items: stretch; }
+  .sticky-actions-note { max-width: none; }
+  .sticky-actions-buttons,
+  .inline-actions { flex-direction: column; align-items: stretch; width: 100%; }
+  .sticky-actions .btn,
+  .inline-actions .btn { width: 100%; }
   .form-actions { flex-direction: column; }
   .form-actions .btn { width: 100%; }
+  .submit-area { align-items: stretch; }
+  .submit-hint { text-align: left; }
   .submit-area .btn { width: 100%; }
   .result-card { flex-direction: column; align-items: flex-start; }
   .result-card-score { width: 100%; align-items: flex-start; }

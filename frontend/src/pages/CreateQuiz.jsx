@@ -4,101 +4,113 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { createQuiz } from "../services/quizService";
+import {
+  createEmptyQuestion,
+  validateQuizPayload,
+} from "../utils/quizValidation";
 
 function CreateQuiz() {
   const navigate = useNavigate();
   const { token } = useAuth();
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [questions, setQuestions] = useState([
-    {
-      questionText: "",
-      options: ["", "", "", ""],
-      correctAnswer: "",
-    },
-  ]);
+  const [questions, setQuestions] = useState([createEmptyQuestion()]);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleQuestionChange = (index, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[index].questionText = value;
-    setQuestions(updatedQuestions);
+    setError("");
+    setQuestions((currentQuestions) =>
+      currentQuestions.map((question, questionIndex) =>
+        questionIndex === index
+          ? { ...question, questionText: value }
+          : question
+      )
+    );
   };
 
   const handleOptionChange = (questionIndex, optionIndex, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[questionIndex].options[optionIndex] = value;
-    setQuestions(updatedQuestions);
+    setError("");
+    setQuestions((currentQuestions) =>
+      currentQuestions.map((question, currentQuestionIndex) => {
+        if (currentQuestionIndex !== questionIndex) {
+          return question;
+        }
+
+        const nextOptions = [...question.options];
+        nextOptions[optionIndex] = value;
+
+        return {
+          ...question,
+          options: nextOptions,
+          correctAnswer: nextOptions.includes(question.correctAnswer)
+            ? question.correctAnswer
+            : "",
+        };
+      })
+    );
   };
 
   const handleCorrectAnswerChange = (questionIndex, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[questionIndex].correctAnswer = value;
-    setQuestions(updatedQuestions);
+    setError("");
+    setQuestions((currentQuestions) =>
+      currentQuestions.map((question, currentQuestionIndex) =>
+        currentQuestionIndex === questionIndex
+          ? { ...question, correctAnswer: value }
+          : question
+      )
+    );
   };
 
   const addQuestion = () => {
-    setQuestions([
-      ...questions,
-      {
-        questionText: "",
-        options: ["", "", "", ""],
-        correctAnswer: "",
-      },
-    ]);
+    setError("");
+    setQuestions((currentQuestions) => [...currentQuestions, createEmptyQuestion()]);
   };
 
   const removeQuestion = (index) => {
     if (questions.length === 1) {
-      setError("En az bir soru olmalıdır.");
+      setError("Quiz için en az bir soru bırakmalısınız.");
       return;
     }
 
-    const updatedQuestions = questions.filter((_, i) => i !== index);
-    setQuestions(updatedQuestions);
+    setError("");
+    setQuestions((currentQuestions) =>
+      currentQuestions.filter((_, questionIndex) => questionIndex !== index)
+    );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError("");
 
-    if (!title.trim()) {
-      setError("Quiz başlığı zorunludur.");
+    const validation = validateQuizPayload({ title, questions });
+
+    if (validation.error) {
+      setError(validation.error);
       return;
-    }
-
-    for (const question of questions) {
-      if (!question.questionText.trim()) {
-        setError("Tüm soru metinleri doldurulmalıdır.");
-        return;
-      }
-
-      if (question.options.some((option) => !option.trim())) {
-        setError("Tüm seçenekler doldurulmalıdır.");
-        return;
-      }
-
-      if (!question.correctAnswer.trim()) {
-        setError("Her soru için doğru cevap seçilmelidir.");
-        return;
-      }
     }
 
     try {
+      setIsSubmitting(true);
+
       await createQuiz(
         {
-          title,
-          description,
-          questions,
+          title: validation.title,
+          description: description.trim(),
+          questions: validation.questions,
         },
         token
       );
 
-      navigate("/my-quizzes");
       toast.success("Quiz başarıyla oluşturuldu.");
+      navigate("/my-quizzes");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Quiz oluşturulurken hata oluştu.");
+      toast.error(
+        error.response?.data?.message ||
+          "Quiz oluşturulurken bir sorun oluştu."
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -127,24 +139,31 @@ function CreateQuiz() {
       </div>
 
       <form className="create-quiz-form" onSubmit={handleSubmit}>
-        {error && <div className="error-message">{error}</div>}
+        {error ? <div className="error-message">{error}</div> : null}
 
         <div className="form-card">
           <h3>Quiz Bilgileri</h3>
 
-          <label>Quiz Başlığı</label>
+          <label htmlFor="quiz-title">Quiz Başlığı</label>
           <input
+            id="quiz-title"
             type="text"
             placeholder="Örn: Web Programlama Temel Quiz"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(event) => {
+              setError("");
+              setTitle(event.target.value);
+            }}
+            disabled={isSubmitting}
           />
 
-          <label>Açıklama</label>
+          <label htmlFor="quiz-description">Açıklama</label>
           <textarea
-            placeholder="Quiz hakkında kısa açıklama yazınız."
+            id="quiz-description"
+            placeholder="Quiz hakkında kısa bir açıklama yazın."
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(event) => setDescription(event.target.value)}
+            disabled={isSubmitting}
           />
         </div>
 
@@ -153,13 +172,16 @@ function CreateQuiz() {
             <div key={questionIndex} className="question-editor-card">
               <div className="question-editor-header">
                 <div>
-                  <span className="badge badge-small">Soru {questionIndex + 1}</span>
+                  <span className="badge badge-small">
+                    Soru {questionIndex + 1}
+                  </span>
                 </div>
 
                 <button
                   type="button"
                   className="btn btn-small btn-danger"
                   onClick={() => removeQuestion(questionIndex)}
+                  disabled={isSubmitting}
                 >
                   Sil
                 </button>
@@ -168,9 +190,12 @@ function CreateQuiz() {
               <label>Soru Metni</label>
               <input
                 type="text"
-                placeholder="Soru metnini yazınız"
+                placeholder="Soru metnini yazın"
                 value={question.questionText}
-                onChange={(e) => handleQuestionChange(questionIndex, e.target.value)}
+                onChange={(event) =>
+                  handleQuestionChange(questionIndex, event.target.value)
+                }
+                disabled={isSubmitting}
               />
 
               <label>Seçenekler</label>
@@ -181,9 +206,14 @@ function CreateQuiz() {
                     type="text"
                     placeholder={`Seçenek ${optionIndex + 1}`}
                     value={option}
-                    onChange={(e) =>
-                      handleOptionChange(questionIndex, optionIndex, e.target.value)
+                    onChange={(event) =>
+                      handleOptionChange(
+                        questionIndex,
+                        optionIndex,
+                        event.target.value
+                      )
                     }
+                    disabled={isSubmitting}
                   />
                 ))}
               </div>
@@ -191,14 +221,15 @@ function CreateQuiz() {
               <label>Doğru Cevap</label>
               <select
                 value={question.correctAnswer}
-                onChange={(e) =>
-                  handleCorrectAnswerChange(questionIndex, e.target.value)
+                onChange={(event) =>
+                  handleCorrectAnswerChange(questionIndex, event.target.value)
                 }
+                disabled={isSubmitting}
               >
-                <option value="">Doğru cevabı seçiniz</option>
+                <option value="">Doğru cevabı seçin</option>
 
                 {question.options.map((option, optionIndex) => (
-                  <option key={optionIndex} value={option}>
+                  <option key={optionIndex} value={option} disabled={!option.trim()}>
                     {option || `Seçenek ${optionIndex + 1}`}
                   </option>
                 ))}
@@ -208,18 +239,25 @@ function CreateQuiz() {
         </div>
 
         <div className="sticky-actions">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={addQuestion}
-          >
-            <PlusCircle size={16} strokeWidth={1.9} aria-hidden="true" />
-            Yeni Soru Ekle
-          </button>
+          <div className="sticky-actions-note">
+            Tüm seçenekleri doldurup doğru cevabı işaretlediğinizden emin olun.
+          </div>
 
-          <button type="submit" className="btn btn-primary">
-            Quiz Kaydet
-          </button>
+          <div className="sticky-actions-buttons">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={addQuestion}
+              disabled={isSubmitting}
+            >
+              <PlusCircle size={16} strokeWidth={1.9} aria-hidden="true" />
+              Yeni Soru Ekle
+            </button>
+
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+              {isSubmitting ? "Quiz kaydediliyor..." : "Quiz Kaydet"}
+            </button>
+          </div>
         </div>
       </form>
     </div>

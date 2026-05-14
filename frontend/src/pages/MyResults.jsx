@@ -10,14 +10,20 @@ function MyResults() {
   const { token } = useAuth();
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
+        setLoading(true);
+        setLoadError("");
         const data = await getMyResults(token);
         setResults(data);
-      } catch {
-        toast.error("Sonuçlar alınamadı.");
+      } catch (error) {
+        const message =
+          error.response?.data?.message || "Sonuçların şu anda getirilemedi.";
+        setLoadError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -36,26 +42,43 @@ function MyResults() {
         </div>
       </div>
 
-      {loading ? (
-        <Loading />
-      ) : results.length === 0 ? (
+      {loading ? <Loading message="Sonuçların yükleniyor..." /> : null}
+
+      {!loading && loadError ? (
+        <EmptyState
+          title="Sonuçlar yüklenemedi"
+          description="Sonuçlarını getirirken bir sorun oluştu. Lütfen tekrar deneyin."
+          actionLabel="Tekrar Dene"
+          actionOnClick={() => window.location.reload()}
+        />
+      ) : null}
+
+      {!loading && !loadError && results.length === 0 ? (
         <EmptyState
           title="Henüz sonuç bulunmuyor"
-          description="Bir quiz çözdüğünüzde sonuçlarınız burada listelenecek."
+          description="Bir quiz çözdüğünde sonuçların burada listelenecek."
+          actionLabel="Quizlere Git"
+          actionTo="/quizzes"
         />
-      ) : (
+      ) : null}
+
+      {!loading && !loadError && results.length > 0 ? (
         <div className="result-list">
           {results.map((result) => {
-            const percent = result.totalQuestions > 0
-              ? Math.round((result.score / result.totalQuestions) * 100)
-              : 0;
+            const percent =
+              result.totalQuestions > 0
+                ? Math.round((result.score / result.totalQuestions) * 100)
+                : 0;
 
             return (
               <div key={result._id} className="result-card">
                 <div className="result-card-info">
-                  <h3>{result.quiz?.title || "Quiz bilgisi yok"}</h3>
-                  <p>{result.quiz?.description}</p>
-                  {result.createdAt && (
+                  <h3>{result.quiz?.title || "Silinmiş quiz"}</h3>
+                  <p>
+                    {result.quiz?.description ||
+                      "Bu quiz artık yayında değil, ancak sonucun kaydın içinde duruyor."}
+                  </p>
+                  {result.createdAt ? (
                     <small className="result-date">
                       {new Date(result.createdAt).toLocaleDateString("tr-TR", {
                         year: "numeric",
@@ -63,7 +86,7 @@ function MyResults() {
                         day: "numeric",
                       })}
                     </small>
-                  )}
+                  ) : null}
                 </div>
 
                 <div className="result-card-score">
@@ -79,7 +102,7 @@ function MyResults() {
             );
           })}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

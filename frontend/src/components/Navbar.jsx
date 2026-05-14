@@ -1,12 +1,13 @@
 import { BookOpen, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
   const { user, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const closeMenu = () => setMenuOpen(false);
   const toggleMenu = () => setMenuOpen((current) => !current);
@@ -29,7 +30,11 @@ function Navbar() {
         aria-expanded={menuOpen}
         aria-label={menuOpen ? "Mobil menüyü kapat" : "Mobil menüyü aç"}
       >
-        {menuOpen ? <X size={20} strokeWidth={1.9} /> : <Menu size={20} strokeWidth={1.9} />}
+        {menuOpen ? (
+          <X size={20} strokeWidth={1.9} />
+        ) : (
+          <Menu size={20} strokeWidth={1.9} />
+        )}
       </button>
 
       <div
@@ -52,7 +57,7 @@ function Navbar() {
           Quizler
         </Link>
 
-        {user && (
+        {user ? (
           <>
             <Link
               to="/create-quiz"
@@ -77,10 +82,23 @@ function Navbar() {
             >
               Sonuçlarım
             </Link>
-          </>
-        )}
 
-        {!user ? (
+            <div className="nav-user-area">
+              <span className="nav-user">{user.name}</span>
+              <button
+                type="button"
+                className="logout-button"
+                onClick={() => {
+                  closeMenu();
+                  logout();
+                  navigate("/");
+                }}
+              >
+                Çıkış
+              </button>
+            </div>
+          </>
+        ) : (
           <>
             <Link to="/login" className="nav-link" onClick={closeMenu}>
               Giriş
@@ -90,20 +108,6 @@ function Navbar() {
               Kayıt Ol
             </Link>
           </>
-        ) : (
-          <div className="nav-user-area">
-            <span className="nav-user">{user.name}</span>
-            <button
-              type="button"
-              className="logout-button"
-              onClick={() => {
-                logout();
-                closeMenu();
-              }}
-            >
-              Çıkış
-            </button>
-          </div>
         )}
       </div>
     </nav>

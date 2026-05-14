@@ -8,15 +8,21 @@ import { getAllQuizzes } from "../services/quizService";
 function QuizList() {
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     const fetchQuizzes = async () => {
       try {
+        setLoading(true);
+        setLoadError("");
         const data = await getAllQuizzes();
         setQuizzes(data);
-      } catch {
-        toast.error("Quizler alınamadı.");
+      } catch (error) {
+        const message =
+          error.response?.data?.message || "Quizler şu anda yüklenemedi.";
+        setLoadError(message);
+        toast.error(message);
       } finally {
         setLoading(false);
       }
@@ -25,8 +31,9 @@ function QuizList() {
     fetchQuizzes();
   }, []);
 
+  const normalizedSearch = searchText.trim().toLowerCase();
   const filteredQuizzes = quizzes.filter((quiz) =>
-    quiz.title.toLowerCase().includes(searchText.toLowerCase())
+    quiz.title.toLowerCase().includes(normalizedSearch)
   );
 
   return (
@@ -43,18 +50,35 @@ function QuizList() {
           type="text"
           placeholder="Quiz ara..."
           value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
+          onChange={(event) => setSearchText(event.target.value)}
         />
       </div>
 
-      {loading ? (
-        <Loading />
-      ) : filteredQuizzes.length === 0 ? (
+      {loading ? <Loading message="Quizler yükleniyor..." /> : null}
+
+      {!loading && loadError ? (
         <EmptyState
-          title="Quiz bulunamadı"
-          description="Arama sonucuna uygun bir quiz bulunmuyor."
+          title="Quizler yüklenemedi"
+          description="Sunucuya bağlanırken bir sorun oluştu. Birkaç saniye sonra tekrar deneyin."
+          actionLabel="Tekrar Dene"
+          actionOnClick={() => window.location.reload()}
         />
-      ) : (
+      ) : null}
+
+      {!loading && !loadError && filteredQuizzes.length === 0 ? (
+        <EmptyState
+          title={normalizedSearch ? "Aramana uygun quiz bulunamadı" : "Henüz quiz yok"}
+          description={
+            normalizedSearch
+              ? "Farklı bir kelime ile tekrar arama yapabilirsin."
+              : "Yeni quizler eklendiğinde burada görünecek."
+          }
+          actionLabel={normalizedSearch ? "" : "Quiz Oluştur"}
+          actionTo={normalizedSearch ? undefined : "/create-quiz"}
+        />
+      ) : null}
+
+      {!loading && !loadError && filteredQuizzes.length > 0 ? (
         <div className="quiz-grid">
           {filteredQuizzes.map((quiz) => (
             <Link
@@ -68,13 +92,13 @@ function QuizList() {
 
                 <div className="quiz-card-footer">
                   <span>{quiz.questions.length} soru</span>
-                  <span className="quiz-card-action">Çöz →</span>
+                  <span className="quiz-card-action">Çöz</span>
                 </div>
               </div>
             </Link>
           ))}
         </div>
-      )}
+      ) : null}
     </div>
   );
 }
