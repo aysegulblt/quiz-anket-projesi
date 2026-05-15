@@ -561,6 +561,41 @@ const DEMO_RESULT_BLUEPRINTS = [
     score: 4,
     createdAt: buildDate(2, 18),
   },
+  {
+    _id: "683000000000000000000010",
+    user: "681000000000000000000001",
+    quiz: "682000000000000000000001",
+    score: 3,
+    createdAt: buildDate(14, 16),
+  },
+  {
+    _id: "683000000000000000000011",
+    user: "681000000000000000000002",
+    quiz: "682000000000000000000002",
+    score: 4,
+    createdAt: buildDate(12, 10),
+  },
+  {
+    _id: "683000000000000000000012",
+    user: "681000000000000000000003",
+    quiz: "682000000000000000000003",
+    score: 4,
+    createdAt: buildDate(7, 14),
+  },
+  {
+    _id: "683000000000000000000013",
+    user: "681000000000000000000004",
+    quiz: "682000000000000000000004",
+    score: 3,
+    createdAt: buildDate(3, 11),
+  },
+  {
+    _id: "683000000000000000000014",
+    user: "681000000000000000000005",
+    quiz: "682000000000000000000005",
+    score: 4,
+    createdAt: buildDate(1, 9),
+  },
 ];
 
 const DEMO_USER_IDS = DEMO_USERS.map((user) => user._id);
@@ -611,7 +646,37 @@ const buildResultDocuments = () => {
   });
 };
 
+const TEST_TITLE_PATTERNS = [
+  /^test$/i,
+  /^test\s/i,
+  /^deneme$/i,
+  /^deneme\s/i,
+  /test\sbaslik/i,
+  /test\saciklama/i,
+  /deneme\squiz/i,
+  /asdf/i,
+  /lorem\sipsum/i,
+];
+
+const cleanTestData = async (session) => {
+  const testQuizzes = await Quiz.find({
+    $or: TEST_TITLE_PATTERNS.map((pattern) => ({ title: pattern })),
+  })
+    .select("_id")
+    .session(session)
+    .lean();
+
+  if (testQuizzes.length > 0) {
+    const testQuizIds = testQuizzes.map((q) => q._id);
+    await QuizResult.deleteMany({ quiz: { $in: testQuizIds } }).session(session);
+    await Quiz.deleteMany({ _id: { $in: testQuizIds } }).session(session);
+    console.log(`[seed] Cleaned ${testQuizzes.length} test/deneme quiz(es).`);
+  }
+};
+
 const cleanDemoData = async (session) => {
+  await cleanTestData(session);
+
   await QuizResult.deleteMany({
     $or: [
       { _id: { $in: DEMO_RESULT_IDS } },

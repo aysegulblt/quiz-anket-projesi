@@ -1,3 +1,4 @@
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,6 +9,7 @@ function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -85,16 +87,31 @@ function Login() {
           />
 
           <label htmlFor="login-password">Şifre</label>
-          <input
-            id="login-password"
-            type="password"
-            name="password"
-            placeholder="Şifrenizi girin"
-            value={formData.password}
-            onChange={handleChange}
-            autoComplete="current-password"
-            disabled={isSubmitting}
-          />
+          <div className="password-input-wrapper">
+            <input
+              id="login-password"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Şifrenizi girin"
+              value={formData.password}
+              onChange={handleChange}
+              autoComplete="current-password"
+              disabled={isSubmitting}
+            />
+            <button
+              type="button"
+              className="password-toggle-btn"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Şifreyi Gizle" : "Şifreyi Göster"}
+              tabIndex={0}
+            >
+              {showPassword ? (
+                <EyeOff size={16} strokeWidth={1.9} />
+              ) : (
+                <Eye size={16} strokeWidth={1.9} />
+              )}
+            </button>
+          </div>
 
           <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Giriş yapılıyor..." : "Giriş Yap"}

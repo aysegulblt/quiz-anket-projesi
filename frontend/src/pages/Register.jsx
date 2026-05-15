@@ -1,3 +1,4 @@
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
@@ -15,6 +16,8 @@ function Register() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -120,28 +123,58 @@ function Register() {
           />
 
           <label htmlFor="register-password">Şifre</label>
-          <input
-            id="register-password"
-            type="password"
-            name="password"
-            placeholder="En az 8 karakter, harf ve rakam"
-            value={formData.password}
-            onChange={handleChange}
-            autoComplete="new-password"
-            disabled={isSubmitting}
-          />
+          <div className="password-input-wrapper">
+            <input
+              id="register-password"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="En az 8 karakter, harf ve rakam"
+              value={formData.password}
+              onChange={handleChange}
+              autoComplete="new-password"
+              disabled={isSubmitting}
+            />
+            <button
+              type="button"
+              className="password-toggle-btn"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Şifreyi Gizle" : "Şifreyi Göster"}
+              tabIndex={0}
+            >
+              {showPassword ? (
+                <EyeOff size={16} strokeWidth={1.9} />
+              ) : (
+                <Eye size={16} strokeWidth={1.9} />
+              )}
+            </button>
+          </div>
 
           <label htmlFor="register-confirm-password">Şifre Tekrar</label>
-          <input
-            id="register-confirm-password"
-            type="password"
-            name="confirmPassword"
-            placeholder="Şifrenizi tekrar girin"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            autoComplete="new-password"
-            disabled={isSubmitting}
-          />
+          <div className="password-input-wrapper">
+            <input
+              id="register-confirm-password"
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              placeholder="Şifrenizi tekrar girin"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              autoComplete="new-password"
+              disabled={isSubmitting}
+            />
+            <button
+              type="button"
+              className="password-toggle-btn"
+              onClick={() => setShowConfirmPassword((prev) => !prev)}
+              aria-label={showConfirmPassword ? "Şifreyi Gizle" : "Şifreyi Göster"}
+              tabIndex={0}
+            >
+              {showConfirmPassword ? (
+                <EyeOff size={16} strokeWidth={1.9} />
+              ) : (
+                <Eye size={16} strokeWidth={1.9} />
+              )}
+            </button>
+          </div>
 
           <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Hesap oluşturuluyor..." : "Kayıt Ol"}

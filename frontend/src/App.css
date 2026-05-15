@@ -477,6 +477,26 @@ a.nav-user:hover { color: #ea580c; }
   color: #9ca3af; font-size: 12px; margin-top: 6px;
 }
 
+/* ========== PASSWORD TOGGLE ========== */
+.password-input-wrapper {
+  position: relative; display: flex; align-items: center;
+}
+.password-input-wrapper input {
+  width: 100%; padding-right: 42px;
+}
+.password-toggle-btn {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 6px;
+  border: none; background: transparent; color: #9ca3af;
+  cursor: pointer; transition: color 0.15s ease, background-color 0.15s ease;
+  padding: 0;
+}
+.password-toggle-btn:hover { color: #ea580c; background-color: #fff7ed; }
+.password-toggle-btn:focus-visible {
+  outline: 2px solid #ea580c; outline-offset: 1px;
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 900px) {
   .hero-section { grid-template-columns: 1fr; padding: 32px; }
