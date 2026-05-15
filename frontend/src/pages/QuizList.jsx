@@ -3,13 +3,17 @@ import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import Loading from "../components/Loading";
+import { useAuth } from "../context/AuthContext";
 import { getAllQuizzes } from "../services/quizService";
+import { getMyResults } from "../services/resultService";
 
 function QuizList() {
+  const { user, token } = useAuth();
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [solvedQuizIds, setSolvedQuizIds] = useState(new Set());
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -30,6 +34,28 @@ function QuizList() {
 
     fetchQuizzes();
   }, []);
+
+  useEffect(() => {
+    if (!user || !token) {
+      return;
+    }
+
+    const fetchSolvedQuizzes = async () => {
+      try {
+        const results = await getMyResults(token);
+        const ids = new Set(
+          results
+            .map((result) => result.quiz?._id || result.quiz)
+            .filter(Boolean)
+        );
+        setSolvedQuizIds(ids);
+      } catch {
+        /* solved badge is optional, don't block the page */
+      }
+    };
+
+    fetchSolvedQuizzes();
+  }, [user, token]);
 
   const normalizedSearch = searchText.trim().toLowerCase();
   const filteredQuizzes = quizzes.filter((quiz) =>
@@ -87,7 +113,12 @@ function QuizList() {
               className="quiz-link"
             >
               <div className="quiz-card">
-                <h3>{quiz.title}</h3>
+                <h3>
+                  {quiz.title}
+                  {solvedQuizIds.has(quiz._id) ? (
+                    <span className="badge-solved">✓ Çözüldü</span>
+                  ) : null}
+                </h3>
                 <p>{quiz.description}</p>
 
                 <div className="quiz-card-footer">

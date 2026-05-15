@@ -21,16 +21,16 @@ const register = async (req, res) => {
       return res.status(400).json({ message: "Tum alanlar zorunludur." });
     }
 
-    if (password.length < 6) {
+    if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
       return res
         .status(400)
-        .json({ message: "Sifre en az 6 karakter olmalidir." });
+        .json({ message: "Sifre en az 8 karakter olmali ve en az bir harf ile bir rakam icermelidir." });
     }
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json({ message: "Bu email zaten kayitli." });
+      return res.status(400).json({ message: "Bu e-posta adresi ile kayitli bir hesap bulunmaktadir." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -54,7 +54,7 @@ const register = async (req, res) => {
     });
   } catch (error) {
     if (error.code === 11000) {
-      return res.status(400).json({ message: "Bu email zaten kayitli." });
+      return res.status(400).json({ message: "Bu e-posta adresi ile kayitli bir hesap bulunmaktadir." });
     }
 
     return res

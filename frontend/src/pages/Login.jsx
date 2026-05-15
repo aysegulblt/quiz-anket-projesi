@@ -24,7 +24,7 @@ function Login() {
     event.preventDefault();
 
     const payload = {
-      email: formData.email.trim(),
+      email: formData.email.trim().toLowerCase(),
       password: formData.password,
     };
 

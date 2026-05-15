@@ -1,15 +1,25 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { registerUser } from "../services/authService";
+
+const isValidPassword = (password) => {
+  if (password.length < 8) return false;
+  if (!/[a-zA-Z]/.test(password)) return false;
+  if (!/[0-9]/.test(password)) return false;
+  return true;
+};
 
 function Register() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const handleChange = (event) => {
@@ -24,7 +34,7 @@ function Register() {
 
     const payload = {
       name: formData.name.trim(),
-      email: formData.email.trim(),
+      email: formData.email.trim().toLowerCase(),
       password: formData.password,
     };
 
@@ -33,17 +43,25 @@ function Register() {
       return;
     }
 
-    if (payload.password.trim().length < 6) {
-      toast.error("Şifre en az 6 karakter olmalıdır.");
+    if (!isValidPassword(payload.password.trim())) {
+      toast.error(
+        "Şifre en az 8 karakter olmalı ve en az bir harf ile bir rakam içermelidir."
+      );
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Şifreler eşleşmiyor.");
       return;
     }
 
     try {
       setIsSubmitting(true);
-      await registerUser(payload);
+      const data = await registerUser(payload);
 
-      toast.success("Kayıt başarılı. Şimdi giriş yapabilirsiniz.");
-      navigate("/login");
+      login(data.user, data.token);
+      toast.success("Kayıt başarılı! Hoş geldin.");
+      navigate("/quizzes");
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -106,8 +124,20 @@ function Register() {
             id="register-password"
             type="password"
             name="password"
-            placeholder="Şifrenizi oluşturun"
+            placeholder="En az 8 karakter, harf ve rakam"
             value={formData.password}
+            onChange={handleChange}
+            autoComplete="new-password"
+            disabled={isSubmitting}
+          />
+
+          <label htmlFor="register-confirm-password">Şifre Tekrar</label>
+          <input
+            id="register-confirm-password"
+            type="password"
+            name="confirmPassword"
+            placeholder="Şifrenizi tekrar girin"
+            value={formData.confirmPassword}
             onChange={handleChange}
             autoComplete="new-password"
             disabled={isSubmitting}

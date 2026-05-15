@@ -372,7 +372,7 @@
   padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px;
 }
 .result-card-info { min-width: 0; }
-.result-card-info h3 { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+.result-card-info h3 { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .result-card-info p { color: #6b7280; font-size: 14px; margin-bottom: 4px; }
 .result-date { color: #9ca3af; font-size: 12px; }
 .result-card-score {
@@ -385,6 +385,97 @@
   display: inline-flex; align-items: center; gap: 8px;
 }
 .score-percent { color: #6b7280; font-size: 12px; margin-top: 4px; font-weight: 500; }
+.result-attempt-badge {
+  display: inline-block; padding: 2px 8px; border-radius: 5px;
+  background-color: #f3f4f6; color: #6b7280; font-size: 11px; font-weight: 600;
+}
+
+/* ========== SOLVED BADGE ========== */
+.badge-solved {
+  display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 5px;
+  background-color: #f0fdf4; color: #16a34a; font-size: 11px; font-weight: 600;
+  vertical-align: middle;
+}
+
+/* ========== INFO BANNER ========== */
+.info-banner {
+  background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+  padding: 14px 18px; color: #92400e; font-size: 14px; line-height: 1.5;
+}
+
+/* ========== PROFILE PAGE ========== */
+.profile-card {
+  background-color: white; border: 1px solid #e5e7eb; border-radius: 14px;
+  padding: 28px; display: flex; align-items: center; gap: 20px;
+}
+.profile-avatar {
+  width: 56px; height: 56px; border-radius: 14px; background-color: #ea580c;
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 800; flex-shrink: 0;
+}
+.profile-info h2 { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 2px; }
+.profile-info p { color: #6b7280; font-size: 14px; }
+.profile-stats-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+}
+.profile-stat-card {
+  background-color: white; border: 1px solid #e5e7eb; border-radius: 12px;
+  padding: 24px; text-align: center; display: flex; flex-direction: column;
+  align-items: center; gap: 8px;
+}
+.profile-stat-icon {
+  width: 44px; height: 44px; border-radius: 12px; background-color: #fff7ed;
+  color: #ea580c; display: flex; align-items: center; justify-content: center;
+}
+.profile-stat-value { font-size: 28px; font-weight: 800; color: #ea580c; }
+.profile-stat-label { font-size: 13px; color: #6b7280; font-weight: 500; }
+
+/* ========== DYNAMIC OPTIONS ========== */
+.option-input-row {
+  display: flex; align-items: center; gap: 6px;
+}
+.option-input-row input { flex: 1; }
+.option-remove-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 6px; border: 1px solid #fecaca;
+  background-color: #fef2f2; color: #b91c1c; cursor: pointer;
+  transition: all 0.15s ease; flex-shrink: 0;
+}
+.option-remove-btn:hover { background-color: #fee2e2; border-color: #f87171; }
+.option-remove-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.option-add-btn { margin-top: 8px; }
+
+/* ========== NAV USER LINK ========== */
+a.nav-user {
+  text-decoration: none; transition: color 0.15s ease;
+}
+a.nav-user:hover { color: #ea580c; }
+
+/* ========== 404 PAGE ========== */
+.not-found-page {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 50vh; text-align: center;
+}
+.not-found-card {
+  background-color: white; border: 1px solid #e5e7eb; border-radius: 14px;
+  padding: 48px 40px; max-width: 420px; width: 100%;
+}
+.not-found-code {
+  font-size: 64px; font-weight: 800; color: #ea580c; margin-bottom: 8px;
+  line-height: 1;
+}
+.not-found-card h1 {
+  font-size: 22px; font-weight: 700; color: #111827; margin-bottom: 8px;
+}
+.not-found-card p {
+  color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 24px;
+}
+
+/* ========== PROFILE DATE ========== */
+.profile-date {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: #9ca3af; font-size: 12px; margin-top: 6px;
+}
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 900px) {
@@ -395,6 +486,7 @@
   .auth-page { grid-template-columns: 1fr; margin-top: 0; }
   .auth-info-panel { padding: 28px; }
   .auth-info-panel h1 { font-size: 24px; }
+  .profile-stats-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
   .navbar { padding: 0 16px; }
@@ -443,6 +535,7 @@
   .cta-section { padding: 32px 20px; }
   .cta-section h2 { font-size: 20px; }
   .summary-card { align-self: flex-start; }
+  .profile-card { flex-direction: column; align-items: flex-start; }
 }
 @media (max-width: 480px) {
   .page-header { padding: 18px; }
@@ -459,4 +552,6 @@
   .result-card { padding: 20px; }
   .auth-info-panel { padding: 22px; }
   .progress-info { flex-direction: column; gap: 4px; }
+  .profile-card { padding: 20px; }
+  .profile-stat-card { padding: 18px; }
 }

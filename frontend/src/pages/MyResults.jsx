@@ -32,6 +32,29 @@ function MyResults() {
     fetchResults();
   }, [token]);
 
+  const getAttemptCounts = () => {
+    const counts = {};
+    for (const result of results) {
+      const quizId = result.quiz?._id || result.quiz || "unknown";
+      counts[quizId] = (counts[quizId] || 0) + 1;
+    }
+    return counts;
+  };
+
+  const getAttemptIndex = (result, index) => {
+    const quizId = result.quiz?._id || result.quiz || "unknown";
+    let count = 0;
+    for (let i = 0; i <= index; i++) {
+      const rId = results[i].quiz?._id || results[i].quiz || "unknown";
+      if (rId === quizId) {
+        count++;
+      }
+    }
+    return count;
+  };
+
+  const attemptCounts = results.length > 0 ? getAttemptCounts() : {};
+
   return (
     <div className="page-layout">
       <div className="page-header">
@@ -64,16 +87,27 @@ function MyResults() {
 
       {!loading && !loadError && results.length > 0 ? (
         <div className="result-list">
-          {results.map((result) => {
+          {results.map((result, index) => {
             const percent =
               result.totalQuestions > 0
                 ? Math.round((result.score / result.totalQuestions) * 100)
                 : 0;
 
+            const quizId = result.quiz?._id || result.quiz || "unknown";
+            const totalAttempts = attemptCounts[quizId] || 1;
+            const attemptIndex = getAttemptIndex(result, index);
+
             return (
               <div key={result._id} className="result-card">
                 <div className="result-card-info">
-                  <h3>{result.quiz?.title || "Silinmiş quiz"}</h3>
+                  <h3>
+                    {result.quiz?.title || "Silinmiş quiz"}
+                    {totalAttempts > 1 ? (
+                      <span className="result-attempt-badge">
+                        {attemptIndex}. çözüm
+                      </span>
+                    ) : null}
+                  </h3>
                   <p>
                     {result.quiz?.description ||
                       "Bu quiz artık yayında değil, ancak sonucun kaydın içinde duruyor."}
@@ -84,6 +118,8 @@ function MyResults() {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
                       })}
                     </small>
                   ) : null}

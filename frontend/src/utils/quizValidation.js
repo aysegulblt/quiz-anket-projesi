@@ -1,8 +1,8 @@
-export const QUESTION_OPTION_COUNT = 4;
+export const MIN_OPTION_COUNT = 2;
 
 export const createEmptyQuestion = () => ({
   questionText: "",
-  options: Array(QUESTION_OPTION_COUNT).fill(""),
+  options: Array(MIN_OPTION_COUNT).fill(""),
   correctAnswer: "",
 });
 
@@ -38,8 +38,8 @@ export const validateQuizPayload = ({ title, questions }) => {
       return { error: `${label} için soru metnini doldurun.` };
     }
 
-    if (question.options.length !== QUESTION_OPTION_COUNT) {
-      return { error: `${label} için tam ${QUESTION_OPTION_COUNT} seçenek girilmelidir.` };
+    if (question.options.length < MIN_OPTION_COUNT) {
+      return { error: `${label} için en az ${MIN_OPTION_COUNT} seçenek girilmelidir.` };
     }
 
     if (question.options.some((option) => !option)) {

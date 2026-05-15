@@ -1,4 +1,4 @@
-import { FileText, PlusCircle } from "lucide-react";
+import { FileText, PlusCircle, Trash2 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { createQuiz } from "../services/quizService";
 import {
   createEmptyQuestion,
+  MIN_OPTION_COUNT,
   validateQuizPayload,
 } from "../utils/quizValidation";
 
@@ -76,6 +77,47 @@ function CreateQuiz() {
     setError("");
     setQuestions((currentQuestions) =>
       currentQuestions.filter((_, questionIndex) => questionIndex !== index)
+    );
+  };
+
+  const handleAddOption = (questionIndex) => {
+    setError("");
+    setQuestions((currentQuestions) =>
+      currentQuestions.map((question, currentQuestionIndex) => {
+        if (currentQuestionIndex !== questionIndex) {
+          return question;
+        }
+        return {
+          ...question,
+          options: [...question.options, ""],
+        };
+      })
+    );
+  };
+
+  const handleRemoveOption = (questionIndex, optionIndex) => {
+    setError("");
+    setQuestions((currentQuestions) =>
+      currentQuestions.map((question, currentQuestionIndex) => {
+        if (currentQuestionIndex !== questionIndex) {
+          return question;
+        }
+
+        if (question.options.length <= MIN_OPTION_COUNT) {
+          setError(`Her soru için en az ${MIN_OPTION_COUNT} seçenek olmalıdır.`);
+          return question;
+        }
+
+        const removedOption = question.options[optionIndex];
+        const nextOptions = question.options.filter((_, i) => i !== optionIndex);
+
+        return {
+          ...question,
+          options: nextOptions,
+          correctAnswer:
+            question.correctAnswer === removedOption ? "" : question.correctAnswer,
+        };
+      })
     );
   };
 
@@ -201,22 +243,47 @@ function CreateQuiz() {
               <label>Seçenekler</label>
               <div className="options-grid">
                 {question.options.map((option, optionIndex) => (
-                  <input
-                    key={optionIndex}
-                    type="text"
-                    placeholder={`Seçenek ${optionIndex + 1}`}
-                    value={option}
-                    onChange={(event) =>
-                      handleOptionChange(
-                        questionIndex,
-                        optionIndex,
-                        event.target.value
-                      )
-                    }
-                    disabled={isSubmitting}
-                  />
+                  <div key={optionIndex} className="option-input-row">
+                    <input
+                      type="text"
+                      placeholder={`Seçenek ${optionIndex + 1}`}
+                      value={option}
+                      onChange={(event) =>
+                        handleOptionChange(
+                          questionIndex,
+                          optionIndex,
+                          event.target.value
+                        )
+                      }
+                      disabled={isSubmitting}
+                    />
+                    {question.options.length > MIN_OPTION_COUNT ? (
+                      <button
+                        type="button"
+                        className="option-remove-btn"
+                        onClick={() =>
+                          handleRemoveOption(questionIndex, optionIndex)
+                        }
+                        disabled={isSubmitting}
+                        title="Seçeneği sil"
+                        aria-label={`Seçenek ${optionIndex + 1} sil`}
+                      >
+                        <Trash2 size={14} strokeWidth={1.9} />
+                      </button>
+                    ) : null}
+                  </div>
                 ))}
               </div>
+
+              <button
+                type="button"
+                className="btn btn-small btn-secondary option-add-btn"
+                onClick={() => handleAddOption(questionIndex)}
+                disabled={isSubmitting}
+              >
+                <PlusCircle size={14} strokeWidth={1.9} aria-hidden="true" />
+                Seçenek Ekle
+              </button>
 
               <label>Doğru Cevap</label>
               <select

@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import EmptyState from "../components/EmptyState";
 import Loading from "../components/Loading";
 import { useAuth } from "../context/AuthContext";
-import { saveQuizResult } from "../services/resultService";
+import { saveQuizResult, getMyResults } from "../services/resultService";
 import { getQuizById } from "../services/quizService";
 
 function QuizDetail() {
@@ -16,6 +16,7 @@ function QuizDetail() {
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
   const [isSubmittingResult, setIsSubmittingResult] = useState(false);
+  const [previouslySolved, setPreviouslySolved] = useState(false);
 
   useEffect(() => {
     const fetchQuiz = async () => {
@@ -38,6 +39,27 @@ function QuizDetail() {
 
     fetchQuiz();
   }, [id]);
+
+  useEffect(() => {
+    if (!user || !token) {
+      return;
+    }
+
+    const checkIfSolved = async () => {
+      try {
+        const results = await getMyResults(token);
+        const hasSolved = results.some((result) => {
+          const quizId = result.quiz?._id || result.quiz;
+          return quizId === id;
+        });
+        setPreviouslySolved(hasSolved);
+      } catch {
+        /* non-critical check */
+      }
+    };
+
+    checkIfSolved();
+  }, [id, user, token]);
 
   const handleSelectAnswer = (questionIndex, option) => {
     if (showResult) {
@@ -139,6 +161,13 @@ function QuizDetail() {
           <strong>{totalQuestions}</strong>
         </div>
       </div>
+
+      {previouslySolved && !showResult ? (
+        <div className="info-banner">
+          Bu quizi daha önce çözdünüz. Tekrar çözerseniz yeni sonucunuz
+          geçmişinize eklenecektir.
+        </div>
+      ) : null}
 
       <div className="progress-area">
         <div className="progress-info">

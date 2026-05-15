@@ -84,7 +84,7 @@ function Navbar() {
             </Link>
 
             <div className="nav-user-area">
-              <span className="nav-user">{user.name}</span>
+              <Link to="/profile" className="nav-user" onClick={closeMenu}>{user.name}</Link>
               <button
                 type="button"
                 className="logout-button"

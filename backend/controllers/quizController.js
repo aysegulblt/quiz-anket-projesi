@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Quiz = require("../models/Quiz");
 
-const QUESTION_OPTION_COUNT = 4;
+const MIN_OPTION_COUNT = 2;
 
 const normalizeQuestion = (question = {}) => ({
   questionText: question.questionText?.trim() || "",
@@ -31,9 +31,9 @@ const validateQuizPayload = ({ title, questions }) => {
       return { error: `${label} icin soru metni zorunludur.` };
     }
 
-    if (question.options.length !== QUESTION_OPTION_COUNT) {
+    if (question.options.length < MIN_OPTION_COUNT) {
       return {
-        error: `${label} icin tam ${QUESTION_OPTION_COUNT} secenek girilmelidir.`,
+        error: `${label} icin en az ${MIN_OPTION_COUNT} secenek girilmelidir.`,
       };
     }
 

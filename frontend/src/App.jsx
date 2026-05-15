@@ -10,6 +10,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import MyQuizzes from "./pages/MyQuizzes";
 import EditQuiz from "./pages/EditQuiz";
 import MyResults from "./pages/MyResults";
+import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
 
 import "./App.css";
 
@@ -56,6 +58,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </BrowserRouter>
@@ -63,3 +74,4 @@ function App() {
 }
 
 export default App;
+
