@@ -279,13 +279,13 @@
 }
 .auth-card h2 { margin-bottom: 4px; color: #111827; font-size: 22px; font-weight: 700; }
 .auth-card p { color: #6b7280; margin-bottom: 16px; font-size: 14px; }
-.auth-card button {
+.auth-card button[type="submit"] {
   width: 100%; margin-top: 18px; padding: 11px; border: none; border-radius: 8px;
   background-color: #ea580c; color: white; font-size: 14px; font-weight: 600; cursor: pointer;
   transition: background-color 0.15s ease;
 }
-.auth-card button:hover { background-color: #c2410c; }
-.auth-card button:disabled { background-color: #fb923c; }
+.auth-card button[type="submit"]:hover { background-color: #c2410c; }
+.auth-card button[type="submit"]:disabled { background-color: #fb923c; }
 .auth-footer-text { margin-top: 16px; text-align: center; color: #6b7280; font-size: 13px; }
 .auth-footer-text a { color: #ea580c; font-weight: 600; }
 
